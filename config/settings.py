@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    'events',
+    
     'djoser',
     'baton.autodiscover',
 ]
@@ -222,7 +224,7 @@ DJOSER = {
 
 BATON = {
     'SITE_HEADER': 'Администрирование',
-    'SITE_TITLE': 'Администрирование поликлиники',
+    'SITE_TITLE': 'Администрирование мероприятий',
     'INDEX_TITLE': ' ',
     'COPYRIGHT': 'copyright © 2022 <a href="https://github.com/Re-Gelu">made by Re;Gelu</a>',  # noqa
     'POWERED_BY': '<a href="https://github.com/Re-Gelu">Re;Gelu</a>',
