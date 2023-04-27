@@ -12,3 +12,4 @@ django-colorfield
 django-watson
 psycopg2-binary==2.8.6
 gunicorn==20.1.0
+django-tinymce==3.5.0
