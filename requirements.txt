@@ -10,6 +10,7 @@ django-baton
 django-extra-settings==0.6.1
 django-colorfield
 django-watson
+django-filebrowser-no-grappelli==4.0.1
 psycopg2-binary==2.8.6
 gunicorn==20.1.0
 django-tinymce==3.5.0
