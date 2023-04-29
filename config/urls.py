@@ -18,11 +18,13 @@ from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import permissions
+from rest_framework import routers
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import routers
+from filebrowser.sites import site as filebrowser_site
 import mimetypes
 import debug_toolbar
+from events.views import *
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -39,12 +41,22 @@ schema_view = get_schema_view(
 
 # REST API router
 router = routers.DefaultRouter()
+router.register(r'events', EventsViewSet)
+router.register(r'private_events', PrivateEventsViewSet)    
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    
+    # TinyMCE URLS
+    path('tinymce/', include('tinymce.urls')),
     
     # Baton admin URLS
     path('baton/', include('baton.urls')),
+    
+    # Filebrowser URLS
+    path('admin/filebrowser/', filebrowser_site.urls),
+    
+    # Admin URLS
+    path('admin/', admin.site.urls),
 
     # Swagger URLS
     re_path(
