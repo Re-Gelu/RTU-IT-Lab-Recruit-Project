@@ -1,6 +1,8 @@
 logs/celery/*.log
 logs/gunicorn/*.log
 logs/nginx/*.log
+media/
+!.gitkeep
 
 # Django #
 *.log
