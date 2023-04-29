@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     'baton',
     'colorfield',
     'extra_settings',
+    'filebrowser',
+    'tinymce',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
@@ -164,7 +167,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-        # 'rest_framework.permissions.IsAdminUser'
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -191,7 +193,6 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT', 'Bearer'),
-    "TOKEN_OBTAIN_SERIALIZER": "login.serializers.CustomTokenObtainPairSerializer"
 }
 
 
@@ -226,7 +227,7 @@ BATON = {
     'SITE_HEADER': 'Администрирование',
     'SITE_TITLE': 'Администрирование мероприятий',
     'INDEX_TITLE': ' ',
-    'COPYRIGHT': 'copyright © 2022 <a href="https://github.com/Re-Gelu">made by Re;Gelu</a>',  # noqa
+    'COPYRIGHT': 'copyright © 2023 <a href="https://github.com/Re-Gelu">made by Re;Gelu</a>',  # noqa
     'POWERED_BY': '<a href="https://github.com/Re-Gelu">Re;Gelu</a>',
     'CONFIRM_UNSAVED_CHANGES': True,
     'SHOW_MULTIPART_UPLOADING': True,
@@ -240,6 +241,63 @@ BATON = {
     'GRAVATAR_DEFAULT_IMG': 'retro',
     'LOGIN_SPLASH': '/static/core/img/login-splash.png',
 }
+
+
+# Filebrowser settings
+
+FILEBROWSER_DIRECTORY = ''
+
+FILEBROWSER_VERSIONS = {
+    'admin_thumbnail': {'verbose_name': 'Admin Thumbnail', 'width': 60, 'height': 60, 'opts': 'crop'},
+    'thumbnail': {'verbose_name': 'Миниатюра (1 кол.)', 'width': 60, 'height': 60, 'opts': 'crop'},
+    'small': {'verbose_name': 'Маленькая (2 кол.)', 'width': 140, 'height': '', 'opts': ''},
+    'medium': {'verbose_name': 'Средняя (4 кол.)', 'width': 300, 'height': '', 'opts': ''},
+    'big': {'verbose_name': 'Большая (6 кол.)', 'width': 460, 'height': '', 'opts': ''},
+    'large': {'verbose_name': 'Огромная (8 кол.)', 'width': 680, 'height': '', 'opts': ''},
+}
+
+# TinyMCE settings
+
+TINYMCE_FILEBROWSER = True
+
+TINYMCE_DEFAULT_CONFIG = {
+    "theme": "silver",
+    "height": 600,
+    "menubar": "file edit view insert format tools table help",
+    "plugins": "advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code "
+        "fullscreen insertdatetime media table paste code help wordcount spellchecker",
+    "toolbar": "undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft "
+        "aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor "
+        "backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | "
+        "fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | "
+        "a11ycheck ltr rtl | showcomments addcomment code",
+    "custom_undo_redo_levels": 20,
+}
+
+
+# 'Extra settings' settings
+
+EXTRA_SETTINGS_ENFORCE_UPPERCASE_SETTINGS = True
+
+EXTRA_SETTINGS_CACHE_NAME = 'cache_table'
+
+# Tests bug fix
+
+if 'test' in sys.argv: 
+    
+    EXTRA_SETTINGS_CACHE_NAME = 'default'
+
+EXTRA_SETTINGS_SHOW_TYPE_LIST_FILTER = True
+
+EXTRA_SETTINGS_SHOW_NAME_PREFIX_LIST_FILTER = True
+
+EXTRA_SETTINGS_FILE_UPLOAD_TO = "media/files/"
+
+EXTRA_SETTINGS_IMAGE_UPLOAD_TO = "media/files/"
+
+EXTRA_SETTINGS_VERBOSE_NAME = "Настройки проекта"
+
+EXTRA_SETTINGS_DEFAULTS = []
 
 
 # Prod settings
