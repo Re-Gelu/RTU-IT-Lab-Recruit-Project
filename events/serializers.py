@@ -8,6 +8,7 @@ class EventsSerializer(serializers.ModelSerializer):
         model = Events
         fields = '__all__'
         
+        
 class PrivateEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateEvents
@@ -15,5 +16,24 @@ class PrivateEventsSerializer(serializers.ModelSerializer):
 
 class EventRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = EventsRegistrations
+        model = EventRegistrations
+        exclude = ['is_invitation_accepted']
+        
+        
+    def validate(self, attrs):
+        event = attrs["event_id"]
+        if event.closing_registration_date and event.closing_registration_date <= timezone.now():
+            raise serializers.ValidationError({"closing_registration_date": "Нельзя зарегестрироваться после указанного времени закрытия регистрации"})
+        return super().validate(attrs)
+
+
+class EventVenuesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventVenues
+        fields = '__all__'
+        
+
+class EventTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventTypes
         fields = '__all__'
