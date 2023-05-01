@@ -8,6 +8,73 @@ events_images_folder_path = "events_images/"
 placeholder_image_path = events_images_folder_path + "placeholder.jpg"
 
 
+class EventVenues(models.Model):
+    name = models.CharField(
+        max_length=100, verbose_name="Наименование места проведения мероприятия"
+    )
+    
+    address = models.CharField(
+        max_length=200, blank=True, null=True,
+        verbose_name="Адрес места проведения мероприятия"
+    )
+    
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True,
+        verbose_name="Координата широты для места проведения мероприятия"
+    )
+    
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True,
+        verbose_name="Координата долготы для места проведения мероприятия"
+    )
+    
+    created = models.DateTimeField(
+        auto_now_add=True, verbose_name="Дата создания места проведения мероприятия"
+    )
+    
+    updated = models.DateTimeField(
+        auto_now=True, verbose_name="Дата обновления места проведения мероприятия"
+    )
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'место проведения мероприятия'
+        verbose_name_plural = 'Места проведения мероприятий'
+        
+        
+class EventTypes(models.Model):
+    name = models.CharField(
+        max_length=100, verbose_name="Наименование типа мероприятия"
+    )
+    
+    created = models.DateTimeField(
+        auto_now_add=True, verbose_name="Дата создания типа мероприятия"
+    )
+    
+    updated = models.DateTimeField(
+        auto_now=True, verbose_name="Дата обновления типа мероприятия"
+    )
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'тип мероприятия'
+        verbose_name_plural = 'Типы мероприятий'        
+        
+
 class Events(models.Model):
     name = models.CharField(
         max_length=100, verbose_name="Наименование мероприятия"
@@ -18,9 +85,14 @@ class Events(models.Model):
         blank=True, null=True, default=placeholder_image_path
     )
     
-    venue = models.CharField(
-        max_length=200, blank=True, null=True,
+    venue_id = models.ForeignKey(
+        EventVenues, on_delete=models.PROTECT, blank=True, null=True,
         verbose_name="Место проведения мероприятия"
+    )
+    
+    category_id = models.ForeignKey(
+        EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name="Тип мероприятия"
     )
     
     start_datetime = models.DateTimeField(
@@ -47,13 +119,6 @@ class Events(models.Model):
         verbose_name="Полная информация о мероприятии",
     )
     
-    """ visitors_list = models.JSONField(
-        editable=False,
-        blank=True, null=True,
-        auto_created=True, default=list,
-        verbose_name="Зарегестрированные посетители мероприятия"
-    ) """
-    
     max_visitors = models.PositiveIntegerField(
         verbose_name="Максимум посетителей", default=0
     )
@@ -70,17 +135,17 @@ class Events(models.Model):
         return self.created >= timezone.now() - datetime.timedelta(days=7)
     
     def end_datetime(self):
-        return self.date + self.duration
+        return self.start_datetime + self.duration
     
     def __str__(self):
         return self.name
     
     def save(self, *args, **kwargs):
         self.updated = timezone.now()
-        if self.registered_visitors >= self.max_visitors:
-            self.registered_visitors = self.max_visitors
-        if self.closing_registration_date >= self.date:
-            self.closing_registration_date = self.date
+        #if self.registered_visitors >= self.max_visitors:
+            #self.registered_visitors = self.max_visitors
+        if self.closing_registration_date >= self.start_datetime:
+            self.closing_registration_date = self.start_datetime
         if not self.image:
             self.image = placeholder_image_path
         super().save(*args, **kwargs)
@@ -99,12 +164,42 @@ class PrivateEvents(Events):
         verbose_name_plural = 'Приватные мероприятия'
         
 
-class EventsRegistrations(models.Model):
-    event = models.ForeignKey(Events, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class EventRegistrations(models.Model):
+    event_id = models.ForeignKey(
+        Events, on_delete=models.CASCADE,
+        verbose_name="ID мероприятия"
+    )
+    
+    user_id = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name="ID пользователя"
+    )
+    
+    is_invitation_accepted = models.BooleanField(
+        default=False, blank=True, null=True,
+        verbose_name="Принял ли пользователь приглашение на мероприятие"
+    )
+    
     created = models.DateTimeField(
         auto_now_add=True, verbose_name="Дата регистрации на мероприятие"
     )
+    
     updated = models.DateTimeField(
         auto_now=True, verbose_name="Дата обновления регистрации на мероприятие"
     )
+    
+    def __str__(self):
+        return f"Event ID - {self.event_id}, User ID - {self.user_id}"
+    
+    def save(self, *args, **kwargs):
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        unique_together = ('event_id', 'user_id')
+        constraints = [
+            models.UniqueConstraint(fields=unique_together, name='event_user_id_unique'),
+        ]
+        verbose_name = 'регистрацию на мероприятие'
+        verbose_name_plural = 'Регистрации на мероприятия'
+    
