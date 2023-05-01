@@ -1,7 +1,9 @@
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from config.permissions import ReadOnly, ReadOnlyIfAuthenticated
 from .models import *
 from .serializers import *
@@ -20,6 +22,24 @@ class EventsViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
+    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    def register(self, request, pk=None):
+        """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
+        current_user = request.user
+        serializer = EventRegistrationSerializer(data={"event_id": pk, "user_id": current_user.id})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    @register.mapping.delete
+    def delete_register(self, request, pk=None):
+        """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
+        current_user = request.user
+        event_registration = get_object_or_404(EventRegistrations, event_id=pk, user_id=current_user.id)
+        event_registration.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(detail=True, methods=['post'])
     def invite(self, request, pk=None):
         """ Отправить приглашение на конкретное мероприятие пользователю или группе пользователей """
@@ -43,10 +63,10 @@ class PrivateEventsViewSet(EventsViewSet):
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
     
     
-class EventsRegistrationsView(viewsets.ModelViewSet):
-    queryset = EventsRegistrations.objects.all()
+class EventsRegistrationsViewSet(viewsets.ModelViewSet):
+    queryset = EventRegistrations.objects.all()
     serializer_class = EventRegistrationSerializer
-    permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
+    permission_classes = [AllowAny, ]
     
     """ def post(self, request, event_id):
         event = get_object_or_404(Event, id=event_id)
@@ -55,3 +75,15 @@ class EventsRegistrationsView(viewsets.ModelViewSet):
         registration = EventRegistration.objects.create(event=event, user=user)
         serializer = EventRegistrationSerializer(registration)
         return Response(serializer.data, status=status.HTTP_201_CREATED) """
+        
+
+class EventVenuesViewSet(viewsets.ModelViewSet):
+    queryset = EventVenues.objects.all()
+    serializer_class = EventVenuesSerializer
+    permission_classes = [ReadOnly | IsAdminUser, ]
+
+
+class EventTypesViewSet(viewsets.ModelViewSet):
+    queryset = EventTypes.objects.all()
+    serializer_class = EventTypesSerializer
+    permission_classes = [ReadOnly | IsAdminUser, ]

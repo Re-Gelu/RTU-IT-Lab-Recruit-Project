@@ -19,7 +19,8 @@ class EventsAdmin(admin.ModelAdmin):
     
     @admin.display(description="Кол-во зарегестрированных посетителей")
     def visitors_list_len(self, obj):
-        return len(obj.visitors_list)
+        #return len(obj.visitors_list)
+        return 0
         
     @admin.display(description="Изображение для мероприятия")
     def image_tag(self, obj):
@@ -34,3 +35,19 @@ class EventsAdmin(admin.ModelAdmin):
 @admin.register(PrivateEvents)
 class PrivateEventsAdmin(EventsAdmin):
     pass
+
+
+@admin.register(EventVenues)
+class EventVenuesAdmin(admin.ModelAdmin):
+    list_display = ("name", "address", "latitude", "longitude", "updated", "created")
+    list_filter = ("updated", "created")
+    search_fields = ("name", "address")
+
+
+@admin.register(EventTypes)
+class EventTypesAdmin(admin.ModelAdmin):
+    list_display = ("name", "updated", "created")
+    list_filter = ("updated", "created")
+    search_fields = ("name", )
+    
+admin.site.register(EventRegistrations)
