@@ -5,12 +5,14 @@
 *.css.map
 *.egg-info
 *.sql.gz
-*.bak 
+*.bak
+*.sqlite3
 .cache
 .project
 .idea
 .pydevproject
 .idea/workspace.xml
+.vscode/
 .DS_Store
 .git/
 .gitignore
