@@ -5,12 +5,19 @@ from django.utils.html import format_html
 from .models import *
 
 
+class EventVisitorsInline(admin.TabularInline):
+    model = EventRegistrations
+    extra = 1
+
+
 @admin.register(Events)
 class EventsAdmin(admin.ModelAdmin):
     list_display = ("name", "image_tag", "visitors_list_len", "max_visitors", "updated", "created")
-    list_filter = ("updated", "created")
+    list_filter = ("updated", "created", "visitors")
     search_fields = ("name", )
     list_editable = ("max_visitors", )
+    filter_horizontal = ("visitors",)
+    inlines = (EventVisitorsInline,)
     
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj=None, **kwargs)
@@ -19,8 +26,7 @@ class EventsAdmin(admin.ModelAdmin):
     
     @admin.display(description="Кол-во зарегестрированных посетителей")
     def visitors_list_len(self, obj):
-        #return len(obj.visitors_list)
-        return 0
+        return obj.visitors.count()
         
     @admin.display(description="Изображение для мероприятия")
     def image_tag(self, obj):
