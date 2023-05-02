@@ -25,6 +25,7 @@ from filebrowser.sites import site as filebrowser_site
 import mimetypes
 import debug_toolbar
 from events.views import *
+from login.views import *
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -46,6 +47,7 @@ router.register(r'private_events', PrivateEventsViewSet)
 router.register(r'event_venues', EventVenuesViewSet)    
 router.register(r'event_types', EventTypesViewSet)    
 router.register(r'event_registrations', EventsRegistrationsViewSet)    
+router.register(r'groups', GroupsViewSet)    
 
 urlpatterns = [
     

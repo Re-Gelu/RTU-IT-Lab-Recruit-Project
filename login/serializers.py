@@ -1,9 +1,10 @@
-from django.contrib.auth.models import User
-from djoser import serializers
+from django.contrib.auth.models import User, Group
+from djoser import serializers as djoser_serializers
 from djoser.conf import settings
+from rest_framework import serializers
+        
 
-
-class CustomUserSerializer(serializers.UserSerializer):
+class CustomUserSerializer(djoser_serializers.UserSerializer):
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
@@ -17,7 +18,7 @@ class CustomUserSerializer(serializers.UserSerializer):
         read_only_fields = (settings.LOGIN_FIELD,)
         
 
-class CustomUserCreateSerializer(serializers.UserCreateSerializer):
+class CustomUserCreateSerializer(djoser_serializers.UserCreateSerializer):
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
@@ -27,3 +28,9 @@ class CustomUserCreateSerializer(serializers.UserCreateSerializer):
         ) + (
             'first_name', 'last_name'
 		)
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
