@@ -2,9 +2,11 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from tinymce import models as tinymce_models
+from shortuuid.django_fields import ShortUUIDField
 import datetime
 
 events_images_folder_path = "events_images/"
+
 placeholder_image_path = events_images_folder_path + "placeholder.jpg"
 
 
@@ -119,6 +121,11 @@ class Events(models.Model):
         verbose_name="Полная информация о мероприятии",
     )
     
+    visitors = models.ManyToManyField(
+        User, blank=True, through="EventRegistrations",
+        verbose_name="Зарегестрированные на мероприятие пользователи",
+    )
+    
     max_visitors = models.PositiveIntegerField(
         verbose_name="Максимум посетителей", default=0
     )
@@ -165,6 +172,15 @@ class PrivateEvents(Events):
         
 
 class EventRegistrations(models.Model):
+    shortuuid = ShortUUIDField(
+        auto_created=True,
+        alphabet="0123456789",
+        unique=True,
+        verbose_name="UUID записи на мероприятие",
+        length=10,
+        max_length=10,
+    )
+    
     event_id = models.ForeignKey(
         Events, on_delete=models.CASCADE,
         verbose_name="ID мероприятия"
@@ -189,7 +205,7 @@ class EventRegistrations(models.Model):
     )
     
     def __str__(self):
-        return f"Event ID - {self.event_id}, User ID - {self.user_id}"
+        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
     
     def save(self, *args, **kwargs):
         self.updated = timezone.now()
