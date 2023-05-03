@@ -1,47 +1,21 @@
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from config.permissions import ReadOnly, ReadOnlyIfAuthenticated
 from .models import *
 from .serializers import *
+from .mixins import RegistrationModelMixin
 
 # ViewSets
 
-class EventsViewSet(viewsets.ModelViewSet):
+class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
     queryset = Events.objects.all()
     serializer_class = EventsSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
     
     event_registration_serializer_class = EventRegistrationsSerializer
     event_registration_model = EventRegistrations
-    
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
-    def registration(self, request, pk=None):
-        """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
-        current_user = request.user
-        serializer = self.event_registration_serializer_class(data={"event_id": pk, "user_id": current_user.id})
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
-    @registration.mapping.delete
-    def delete_registration(self, request, pk=None):
-        """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
-        current_user = request.user
-        event_registration = get_object_or_404(self.event_registration_model, event_id=pk, user_id=current_user.id)
-        event_registration.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser, ])
     def invite(self, request, pk=None):
