@@ -44,9 +44,10 @@ schema_view = get_schema_view(
 router = routers.DefaultRouter()
 router.register(r'events', EventsViewSet)
 router.register(r'private_events', PrivateEventsViewSet)    
+router.register(r'event_registrations', EventsRegistrationsViewSet)
+router.register(r'private_event_registrations', PrivateEventsRegistrationsViewSet)
 router.register(r'event_venues', EventVenuesViewSet)    
 router.register(r'event_types', EventTypesViewSet)    
-router.register(r'event_registrations', EventsRegistrationsViewSet)    
 router.register(r'groups', GroupsViewSet)    
 
 urlpatterns = [
