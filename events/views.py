@@ -15,6 +15,9 @@ class EventsViewSet(viewsets.ModelViewSet):
     serializer_class = EventsSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
     
+    event_registration_serializer_class = EventRegistrationsSerializer
+    event_registration_model = EventRegistrations
+    
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -26,7 +29,7 @@ class EventsViewSet(viewsets.ModelViewSet):
     def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
-        serializer = EventRegistrationSerializer(data={"event_id": pk, "user_id": current_user.id})
+        serializer = self.event_registration_serializer_class(data={"event_id": pk, "user_id": current_user.id})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -36,7 +39,7 @@ class EventsViewSet(viewsets.ModelViewSet):
     def delete_registration(self, request, pk=None):
         """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
-        event_registration = get_object_or_404(EventRegistrations, event_id=pk, user_id=current_user.id)
+        event_registration = get_object_or_404(self.event_registration_model, event_id=pk, user_id=current_user.id)
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -62,11 +65,20 @@ class PrivateEventsViewSet(EventsViewSet):
     serializer_class = PrivateEventsSerializer
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
     
+    event_registration_serializer_class = PrivateEventRegistrationsSerializer
+    event_registration_model = PrivateEventRegistrations
+    
     
 class EventsRegistrationsViewSet(viewsets.ModelViewSet):
     queryset = EventRegistrations.objects.all()
-    serializer_class = EventRegistrationSerializer
-    permission_classes = [AllowAny, ]
+    serializer_class = EventRegistrationsSerializer
+    permission_classes = [ReadOnly | IsAuthenticated, ]
+    
+
+class PrivateEventsRegistrationsViewSet(viewsets.ModelViewSet):
+    queryset = PrivateEventRegistrations.objects.all()
+    serializer_class = PrivateEventRegistrationsSerializer
+    permission_classes = [ReadOnly | IsAdminUser, ]
         
 
 class EventVenuesViewSet(viewsets.ModelViewSet):
