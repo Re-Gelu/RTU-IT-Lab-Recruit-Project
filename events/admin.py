@@ -5,9 +5,13 @@ from django.utils.html import format_html
 from .models import *
 
 
-class EventVisitorsInline(admin.TabularInline):
+class EventRegistrationsInline(admin.TabularInline):
     model = EventRegistrations
     extra = 1
+    
+    
+class PrivateEventRegistrationsInline(EventRegistrationsInline):
+    model = PrivateEventRegistrations
 
 
 @admin.register(Events)
@@ -17,7 +21,7 @@ class EventsAdmin(admin.ModelAdmin):
     search_fields = ("name", )
     list_editable = ("max_visitors", )
     filter_horizontal = ("visitors",)
-    inlines = (EventVisitorsInline,)
+    inlines = (EventRegistrationsInline,)
     
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj=None, **kwargs)
@@ -40,7 +44,7 @@ class EventsAdmin(admin.ModelAdmin):
     
 @admin.register(PrivateEvents)
 class PrivateEventsAdmin(EventsAdmin):
-    pass
+    inlines = (PrivateEventRegistrationsInline,)
 
 
 @admin.register(EventVenues)
@@ -56,4 +60,4 @@ class EventTypesAdmin(admin.ModelAdmin):
     list_filter = ("updated", "created")
     search_fields = ("name", )
     
-admin.site.register(EventRegistrations)
+admin.site.register((EventRegistrations, PrivateEventRegistrations))

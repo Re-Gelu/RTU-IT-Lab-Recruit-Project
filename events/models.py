@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from tinymce import models as tinymce_models
 from shortuuid.django_fields import ShortUUIDField
 import datetime
@@ -77,7 +78,7 @@ class EventTypes(models.Model):
         verbose_name_plural = 'Типы мероприятий'        
         
 
-class Events(models.Model):
+class AbstractEvents(models.Model):
     name = models.CharField(
         max_length=100, verbose_name="Наименование мероприятия"
     )
@@ -85,16 +86,6 @@ class Events(models.Model):
     image = models.ImageField(
         upload_to=events_images_folder_path, verbose_name="Изображение для мероприятия",
         blank=True, null=True, default=placeholder_image_path
-    )
-    
-    venue_id = models.ForeignKey(
-        EventVenues, on_delete=models.PROTECT, blank=True, null=True,
-        verbose_name="Место проведения мероприятия"
-    )
-    
-    category_id = models.ForeignKey(
-        EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
-        verbose_name="Тип мероприятия"
     )
     
     start_datetime = models.DateTimeField(
@@ -121,11 +112,6 @@ class Events(models.Model):
         verbose_name="Полная информация о мероприятии",
     )
     
-    visitors = models.ManyToManyField(
-        User, blank=True, through="EventRegistrations",
-        verbose_name="Зарегестрированные на мероприятие пользователи",
-    )
-    
     max_visitors = models.PositiveIntegerField(
         verbose_name="Максимум посетителей", default=0
     )
@@ -140,6 +126,9 @@ class Events(models.Model):
 
     def was_publiched_recently(self):
         return self.created >= timezone.now() - datetime.timedelta(days=7)
+    
+    def visitors_len(self):
+        return self.visitors.count()
     
     def end_datetime(self):
         return self.start_datetime + self.duration
@@ -158,20 +147,55 @@ class Events(models.Model):
         super().save(*args, **kwargs)
     
     class Meta:
+        abstract = True
+        
+        
+class Events(AbstractEvents):
+    venue_id = models.ForeignKey(
+        EventVenues, on_delete=models.PROTECT, blank=True, null=True,
+        verbose_name="Место проведения мероприятия"
+    )
+    
+    category_id = models.ForeignKey(
+        EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name="Тип мероприятия"
+    )
+    
+    visitors = models.ManyToManyField(
+        get_user_model(), blank=True, through="EventRegistrations",
+        verbose_name="Зарегестрированные на мероприятие пользователи",
+    )
+    
+    class Meta:
         ordering = ('name',)
         verbose_name = 'мероприятие'
         verbose_name_plural = 'Мероприятия'
         
 
-class PrivateEvents(Events):
+class PrivateEvents(AbstractEvents):
+    venue_id = models.ForeignKey(
+        EventVenues, on_delete=models.PROTECT, blank=True, null=True,
+        verbose_name="Место проведения приватного мероприятия"
+    )
+    
+    category_id = models.ForeignKey(
+        EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name="Тип приватного мероприятия"
+    )
+    
+    visitors = models.ManyToManyField(
+        get_user_model(), blank=True, through="PrivateEventRegistrations",
+        verbose_name="Зарегестрированные на приватное мероприятие пользователи",
+    )
     
     class Meta:
         ordering = ('name',)
         verbose_name = 'приватное мероприятие'
         verbose_name_plural = 'Приватные мероприятия'
-        
 
-class EventRegistrations(models.Model):
+
+class AbstractEventRegistrations(models.Model):
+    
     shortuuid = ShortUUIDField(
         auto_created=True,
         alphabet="0123456789",
@@ -179,16 +203,6 @@ class EventRegistrations(models.Model):
         verbose_name="UUID записи на мероприятие",
         length=10,
         max_length=10,
-    )
-    
-    event_id = models.ForeignKey(
-        Events, on_delete=models.CASCADE,
-        verbose_name="ID мероприятия"
-    )
-    
-    user_id = models.ForeignKey(
-        User, on_delete=models.CASCADE,
-        verbose_name="ID пользователя"
     )
     
     is_invitation_accepted = models.BooleanField(
@@ -204,18 +218,57 @@ class EventRegistrations(models.Model):
         auto_now=True, verbose_name="Дата обновления регистрации на мероприятие"
     )
     
-    def __str__(self):
-        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
-    
     def save(self, *args, **kwargs):
         self.updated = timezone.now()
         super().save(*args, **kwargs)
     
     class Meta:
+        abstract = True
+
+
+class EventRegistrations(AbstractEventRegistrations):
+    
+    event_id = models.ForeignKey(
+        Events, on_delete=models.CASCADE,
+        verbose_name="ID мероприятия"
+    )
+    
+    user_id = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE,
+        verbose_name="ID пользователя"
+    )
+    
+    def __str__(self):
+        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
+    
+    class Meta:
+        verbose_name = 'регистрацию на мероприятие'
+        verbose_name_plural = 'Регистрации на мероприятия'
         unique_together = ('event_id', 'user_id')
         constraints = [
             models.UniqueConstraint(fields=unique_together, name='event_user_id_unique'),
         ]
-        verbose_name = 'регистрацию на мероприятие'
-        verbose_name_plural = 'Регистрации на мероприятия'
+
+
+class PrivateEventRegistrations(AbstractEventRegistrations):
     
+    private_event_id = models.ForeignKey(
+        PrivateEvents, on_delete=models.CASCADE,
+        verbose_name="ID приватного мероприятия"
+    )
+    
+    user_id = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE,
+        verbose_name="ID пользователя"
+    )
+    
+    def __str__(self):
+        return f"Запись на приватное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
+    
+    class Meta:
+        verbose_name = 'регистрацию на приватное мероприятие'
+        verbose_name_plural = 'Регистрации на приватные мероприятия'
+        unique_together = ('private_event_id', 'user_id')
+        constraints = [
+            models.UniqueConstraint(fields=unique_together, name='private_event_user_id_unique'),
+        ]
