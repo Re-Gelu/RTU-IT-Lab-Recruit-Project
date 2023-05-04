@@ -302,7 +302,7 @@ EXTRA_SETTINGS_DEFAULTS = []
 
 # Prod settings
 
-if os.environ.get("DEBUG") == '1':
+if os.environ.get("DEBUG") == '0':
     
     DEBUG = int(os.environ.get("DEBUG"))
     
