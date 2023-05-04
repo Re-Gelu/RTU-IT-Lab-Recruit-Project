@@ -7,15 +7,22 @@ from django.shortcuts import get_object_or_404
 class RegistrationModelMixin:
     """ Adds event registration functionality.
     
-    Required fields: 
+    Required fields in ViewSet: 
     1) event_registration_model
     2) event_registration_serializer_class """
+    
+    event_registration_serializer_class = None
+    event_registration_model = None
     
     @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
     def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
-        serializer = self.event_registration_serializer_class(data={"event_id": pk, "user_id": current_user.id})
+        serializer = self.event_registration_serializer_class(data={
+            "event_id": pk, 
+            "user_id": current_user.id,
+            "is_invitation_accepted": True,
+        })
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -28,3 +35,22 @@ class RegistrationModelMixin:
         event_registration = get_object_or_404(self.event_registration_model, event_id=pk, user_id=current_user.id)
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class InvitationModelMixin:
+    """ Adds event invitation functionality.
+    
+    Required fields in ViewSet: 
+    1) event_registration_model
+    2) event_registration_serializer_class """
+    
+    event_registration_serializer_class = None
+    event_registration_model = None
+    
+    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    def invitation(self, request, pk=None):
+        ...
+    
+    @invitation.mapping.delete
+    def delete_invitation(self, request, pk=None):
+        ...
