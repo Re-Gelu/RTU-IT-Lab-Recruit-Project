@@ -34,7 +34,7 @@ class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
         return Response(event.visitors_list, status=status.HTTP_200_OK)
     
 
-class PrivateEventsViewSet(EventsViewSet):
+class PrivateEventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
     queryset = PrivateEvents.objects.all()
     serializer_class = PrivateEventsSerializer
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]

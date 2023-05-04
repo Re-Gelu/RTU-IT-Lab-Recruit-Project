@@ -30,7 +30,7 @@ class EventTypesSerializer(serializers.ModelSerializer):
 class EventRegistrationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventRegistrations
-        exclude = ['is_invitation_accepted', 'id']
+        fields = '__all__'
         
         
     def validate(self, attrs):
@@ -43,7 +43,7 @@ class EventRegistrationsSerializer(serializers.ModelSerializer):
 class PrivateEventRegistrationsSerializer(serializers.Serializer):
     class Meta:
         model = PrivateEventRegistrations
-        exclude = ['is_invitation_accepted', 'id']
+        fields = '__all__'
         
         
     def validate(self, attrs):
