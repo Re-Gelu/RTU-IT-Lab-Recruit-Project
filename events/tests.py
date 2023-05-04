@@ -10,37 +10,68 @@ from .models import Events, EventVenues, EventTypes
 from .serializers import EventsSerializer
 import datetime
 
+events_model = Events
+events_serializer = EventsSerializer
+
 class EventsViewSetTestCase(APITestCase):
     def setUp(self):
+        self.admin_client = APIClient()
         self.client = APIClient()
         
-        # User | Authorization
+        # Admin user | JWT Authorization
         self.admin_user = get_user_model().objects.create_superuser(
             username='admin@test.com',
             email='admin@test.com',
             password='testpass123'
         )
         self.admin_token = AccessToken.for_user(self.admin_user)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.admin_token}')
+        self.admin_client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.admin_token}')
+        
+        # Default user | JWT Authorization
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
         
         # Creating events
-        self.event1 = Events.objects.create(
+        self.events_model = events_model
+        self.events_serializer = events_serializer
+        self.event1 = self.events_model.objects.create(
             name='Test event',
             start_datetime=timezone.now() + timedelta(days=1),
             closing_registration_date=timezone.now() + timedelta(hours=1)
         )
-        self.event2 = Events.objects.create(
+        self.event2 = self.events_model.objects.create(
             name='Test event 2',
             start_datetime=timezone.now() + timedelta(days=2),
             closing_registration_date=timezone.now() + timedelta(hours=2)
         )
+        
+        self.events_list_url = reverse('events-list')
+        self.events_detail_url = reverse('events-detail', args=[self.event1.id])
+        
+    def tearDown(self):
+        self.user.delete()
+        self.admin_user.delete()
 
     def test_get_all_events(self):
-        response = self.client.get(reverse('events-list'))
-        events = Events.objects.all()
-        serializer = EventsSerializer(events, many=True)
+        response = self.client.get(self.events_list_url)
+        admin_response = self.admin_client.get(self.events_list_url)
+        events = self.events_model.objects.all()
+        serializer = self.events_serializer(events, many=True)
         self.assertEqual(response.data.get("count"), len(serializer.data))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(admin_response.data.get("count"), len(serializer.data))
+        self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
+        
+    def test_events_detail_view(self):
+        response = self.client.get(self.events_detail_url)
+        admin_response = self.admin_client.get(self.events_detail_url)
+        self.assertEqual(response.data.get("id"), self.event1.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(admin_response.data.get("id"), self.event1.id)
+        self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
 
     def test_create_new_event(self):
         data = {
@@ -48,35 +79,44 @@ class EventsViewSetTestCase(APITestCase):
             'start_datetime': timezone.now() + timedelta(days=3),
             'closing_registration_date': timezone.now() + timedelta(hours=3)
         }
-        response = self.client.post(reverse('events-list'), data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(self.events_list_url, data)
+        admin_response = self.admin_client.post(self.events_list_url, data)
+        self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(admin_response.data.get("name"), "New test event")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_event(self):
-        event = Events.objects.get(name='Test event')
+        event = self.events_model.objects.get(name='Test event')
         data = {
             'name': 'Updated test event',
             'start_datetime': event.start_datetime,
             'closing_registration_date': event.closing_registration_date
         }
-        response = self.client.put(reverse('events-detail', args=[event.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.put(self.events_detail_url, data)
+        admin_response = self.admin_client.put(self.events_detail_url, data)
+        self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(admin_response.data.get("name"), "Updated test event")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_event(self):
-        event = Events.objects.get(name='Test event')
-        response = self.client.delete(reverse('events-detail', args=[event.id]))
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        response = self.client.delete(self.events_detail_url)
+        admin_response = self.admin_client.delete(self.events_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(admin_response.status_code, status.HTTP_204_NO_CONTENT)
 
 
 class EventsSerializerTestCase(TestCase):
     def setUp(self):
-        self.event = Events.objects.create(
+        self.events_model = events_model
+        self.events_serializer = events_serializer
+        self.event = self.events_model.objects.create(
             name='Test event',
             start_datetime=timezone.now() + timedelta(days=1),
             closing_registration_date=timezone.now() + timedelta(hours=1)
         )
 
     def test_event_serializer(self):
-        serializer = EventsSerializer(self.event)
+        serializer = self.events_serializer(self.event)
         data = serializer.data
         self.assertEqual(data['name'], self.event.name)
         self.assertEqual(datetime.datetime.fromisoformat(data['start_datetime']), timezone.localtime(self.event.start_datetime))
@@ -88,7 +128,8 @@ class EventsModelTest(TestCase):
     def setUp(self):
         venue = EventVenues.objects.create(name='Test Venue')
         event_type = EventTypes.objects.create(name='Test Event Type')
-        self.event = Events.objects.create(
+        self.events_model = events_model
+        self.event = self.events_model.objects.create(
             name='Test Event',
             start_datetime=timezone.now() + timedelta(days=1),
             closing_registration_date=timezone.now() + timedelta(hours=12),
