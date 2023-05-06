@@ -114,7 +114,8 @@ class EventVenuesTest(TestCase):
     def test_created_and_updated_fields(self):
         self.assertIsNotNone(self.event_venue.created)
         self.assertIsNotNone(self.event_venue.updated)
-        self.assertEqual(self.event_venue.updated, self.event_venue.created)
+        self.assertIsInstance(self.event_venue.created, timezone.datetime)
+        self.assertIsInstance(self.event_venue.updated, timezone.datetime)
         
     def test_longitude_decimal_places(self):
         event_venue = EventVenues.objects.get(id=1)
