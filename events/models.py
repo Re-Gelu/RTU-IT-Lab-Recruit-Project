@@ -197,48 +197,32 @@ class PrivateEvents(AbstractEvents):
         
 
 class PaidEvents(AbstractEvents):
-    
-    class PaymentStatuses(models.TextChoices):
-        CREATED = "CREATED", "Платеж создан"
-        WAITING = "WAITING", "Платёж в обработке / ожидает оплаты"
-        PAID = "PAID", "Платёж оплачен"
-        EXPIRED = "EXPIRED", "Время жизни счета истекло. Счет не оплачен."
-        REJECTED = "REJECTED", "Платёж отклонен"
         
     venue_id = models.ForeignKey(
         EventVenues, on_delete=models.PROTECT, blank=True, null=True,
-        verbose_name="Место проведения приватного мероприятия"
+        verbose_name="Место проведения платного мероприятия"
     )
     
     category_id = models.ForeignKey(
         EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
-        verbose_name="Тип приватного мероприятия"
+        verbose_name="Тип платного мероприятия"
     )
     
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="PaidEventRegistrations",
         through_fields=('event_id', 'user_id'),
-        verbose_name="Зарегестрированные на приватное мероприятие пользователи",
+        verbose_name="Зарегестрированные на платное мероприятие пользователи",
     )
     
-    payment_link = models.URLField(
-        verbose_name="Ссылка на оплату",
-        blank=True, null=True,
-        auto_created=True,
-    )
-
-    status = models.TextField(
-        choices=PaymentStatuses.choices,
-        default=PaymentStatuses.CREATED,
-        verbose_name="Статус оплаты",
-        blank=True, null=True,
-        editable=False,
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, 
+        verbose_name="Стоимость регистрации на платное мероприятие"
     )
     
     class Meta:
         ordering = ('name',)
         verbose_name = 'платное мероприятие'
-        verbose_name_plural = 'Пльаные мероприятия'
+        verbose_name_plural = 'Платные мероприятия'
 
 
 
@@ -346,6 +330,13 @@ class PrivateEventRegistrations(AbstractEventRegistrations):
 
 class PaidEventRegistrations(AbstractEventRegistrations):
     
+    class PaymentStatuses(models.TextChoices):
+        CREATED = "CREATED", "Платеж создан"
+        WAITING = "WAITING", "Платёж в обработке / ожидает оплаты"
+        PAID = "PAID", "Платёж оплачен"
+        EXPIRED = "EXPIRED", "Время жизни счета истекло. Счет не оплачен."
+        REJECTED = "REJECTED", "Платёж отклонен"
+    
     event_id = models.ForeignKey(
         PaidEvents, on_delete=models.CASCADE,
         verbose_name="ID платного мероприятия"
@@ -360,6 +351,20 @@ class PaidEventRegistrations(AbstractEventRegistrations):
         get_user_model(), on_delete=models.CASCADE,
         blank=True, null=True, related_name='+',
         verbose_name="ID приглашающего пользователя"
+    )
+    
+    payment_link = models.URLField(
+        verbose_name="Ссылка на оплату",
+        blank=True, null=True,
+        auto_created=True,
+    )
+
+    payment_status = models.TextField(
+        choices=PaymentStatuses.choices,
+        default=PaymentStatuses.CREATED,
+        verbose_name="Статус оплаты",
+        blank=True, null=True,
+        auto_created=True
     )
     
     def save(self, *args, **kwargs):
