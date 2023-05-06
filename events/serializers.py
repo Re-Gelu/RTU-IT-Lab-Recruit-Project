@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import *
+from django.utils import timezone
+from .models import (Events, PrivateEvents, PaidEvents, EventVenues, EventTypes, 
+                     EventRegistrations, PrivateEventRegistrations, PaidEventRegistrations)
 
 # Serializers
 
@@ -12,6 +14,12 @@ class EventsSerializer(serializers.ModelSerializer):
 class PrivateEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateEvents
+        fields = '__all__'
+        
+        
+class PaidEventsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaidEvents
         fields = '__all__'
         
         
@@ -46,7 +54,14 @@ class PrivateEventRegistrationsSerializer(EventRegistrationsSerializer):
         model = PrivateEventRegistrations
         fields = '__all__'
         read_only_fields = ['shortuuid', ]
-        
+
+
+class PaidEventRegistrationsSerializer(EventRegistrationsSerializer):
+    class Meta:
+        model = PaidEventRegistrations
+        fields = '__all__'
+        read_only_fields = ['shortuuid', 'payment_status', 'payment_link']
+
 
 class EventInvitationsSerializer(EventRegistrationsSerializer):
     class Meta:
