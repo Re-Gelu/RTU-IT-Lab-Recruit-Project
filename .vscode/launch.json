@@ -14,6 +14,34 @@
             ],
             "django": true,
             "justMyCode": true
+        },
+        {
+            "name": "Python: Celery",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "args": ["-A", "config", "worker", "--pool=solo", "--loglevel=info"],
+            "justMyCode": true
+        },
+        {
+            "name": "Python: CeleryBeat",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "args": ["-A", "config", "beat", "--loglevel=info"],
+            "justMyCode": true
+        },
+    ],
+    "compounds": [
+        {
+          "name": "Python: Django / Celery",
+          "configurations": ["Python: Django", "Python: Celery", "Python: CeleryBeat"],
+          "stopAll": true,
+          "presentation": {
+            "hidden": false,
+            "group": "",
+            "order": 1
+          }
         }
-    ]
+      ]
 }
