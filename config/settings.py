@@ -335,11 +335,7 @@ BEAT_SCHEDULE = {}
 if 'test' in sys.argv: 
     
     EXTRA_SETTINGS_CACHE_NAME = 'default'
-    
-    INSTALLED_APPS.remove('django_celery_results')
-    
-    INSTALLED_APPS.remove('django_celery_beat')
-    
+
     CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 
 EXTRA_SETTINGS_SHOW_TYPE_LIST_FILTER = True
