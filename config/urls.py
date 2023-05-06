@@ -24,8 +24,10 @@ from drf_yasg import openapi
 from filebrowser.sites import site as filebrowser_site
 import mimetypes
 import debug_toolbar
-from events.views import *
-from login.views import *
+from events.views import (EventsViewSet, PrivateEventsViewSet, PaidEventsViewSet,
+                         EventsRegistrationsViewSet, PrivateEventsRegistrationsViewSet, 
+                         EventVenuesViewSet, EventTypesViewSet)
+from login.views import GroupsViewSet
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -43,7 +45,8 @@ schema_view = get_schema_view(
 # REST API router
 router = routers.DefaultRouter()
 router.register(r'events', EventsViewSet)
-router.register(r'private_events', PrivateEventsViewSet)    
+router.register(r'private_events', PrivateEventsViewSet)
+router.register(r'paid_events', PaidEventsViewSet)
 router.register(r'event_registrations', EventsRegistrationsViewSet)
 router.register(r'private_event_registrations', PrivateEventsRegistrationsViewSet)
 router.register(r'event_venues', EventVenuesViewSet)    
