@@ -15,3 +15,4 @@ psycopg2-binary==2.8.6
 gunicorn
 django-tinymce
 shortuuid
+pyQiwiP2P==2.0.6
