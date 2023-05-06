@@ -16,3 +16,10 @@ gunicorn
 django-tinymce
 shortuuid
 pyQiwiP2P==2.0.6
+celery[redis]
+redis
+django-celery-results
+django-celery-beat
+Pillow
+pytz
+tzdata
