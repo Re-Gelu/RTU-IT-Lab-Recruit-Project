@@ -3,8 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .serializers import EventInvitationsSerializer
-from .models import EventRegistrations, PrivateEventRegistrations
+from django.conf import settings
+from extra_settings.models import Setting
+from config.qiwi import get_QIWI_p2p
+from .serializers import EventInvitationsSerializer, PaidEventRegistrationsSerializer
 
 class RegistrationModelMixin:
     """ Adds event registration functionality.
@@ -114,3 +116,50 @@ class PrivateInvitationModelMixin(InvitationModelMixin):
     2) event_registration_serializer_class """
     
     permission_classes=[IsAdminUser, ]
+    
+
+class PaymentRegistrationModelMixin(RegistrationModelMixin):
+    """ Adds paid event registration functionality.
+        
+        Required fields in ViewSet: 
+        1) event_registration_model
+        2) event_registration_serializer_class """
+    
+    event_registration_serializer_class = None
+    event_registration_model = None
+    
+    permission_classes=[IsAuthenticated, ]
+    
+    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    def registration(self, request, pk=None):
+
+        p2p = get_QIWI_p2p()
+
+        # Если ключа QIWI нет или он не прошел проверку
+        if p2p == None:
+            return Response({"error": "Set QIWI_PRIVATE_KEY setting!"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        current_user = request.user
+        serializer = self.event_registration_serializer_class(data={
+            "event_id": pk, 
+            "user_id": current_user.id,
+            "is_invitation_accepted": True,
+        })
+        serializer.is_valid(raise_exception=True)
+        paid_event = serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        
+        # Создание QIWI платежа
+        bill = p2p.bill(
+            bill_id=paid_event.shortuuid,
+            amount=self.get_object().price,
+            lifetime=Setting.get("QIWI_PAYMENTS_LIFETIME"),
+            comment=f"Оплата регистрации №{paid_event.shortuuid}"
+        )
+        
+        # Доабавление ссылки на оплату
+        paid_event.payment_link = bill.pay_url + f"&successUrl={settings.SUCCESS_PAYMENT_URL}"
+        paid_event.save()
+        serializer = self.event_registration_serializer_class(paid_event)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
