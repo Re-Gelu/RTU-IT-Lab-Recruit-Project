@@ -2,7 +2,16 @@ from django.contrib import admin
 from django.conf import settings
 from filebrowser.base import FileObject
 from django.utils.html import format_html
-from .models import *
+from .models import (
+    EventVenues,
+    EventTypes, 
+    Events, 
+    PrivateEvents,
+    PaidEvents,
+    EventRegistrations, 
+    PrivateEventRegistrations,
+    PaidEventRegistrations
+)
 
 
 class EventRegistrationsInline(admin.TabularInline):
@@ -12,6 +21,10 @@ class EventRegistrationsInline(admin.TabularInline):
     
 class PrivateEventRegistrationsInline(EventRegistrationsInline):
     model = PrivateEventRegistrations
+    
+
+class PaidEventRegistrationsInline(EventRegistrationsInline):
+    model = PaidEventRegistrations
 
 
 @admin.register(Events)
@@ -45,6 +58,11 @@ class EventsAdmin(admin.ModelAdmin):
 @admin.register(PrivateEvents)
 class PrivateEventsAdmin(EventsAdmin):
     inlines = (PrivateEventRegistrationsInline,)
+    
+
+@admin.register(PaidEvents)
+class PaidEventsAdmin(EventsAdmin):
+    inlines = (PaidEventRegistrationsInline,)
 
 
 @admin.register(EventVenues)
@@ -60,4 +78,4 @@ class EventTypesAdmin(admin.ModelAdmin):
     list_filter = ("updated", "created")
     search_fields = ("name", )
     
-admin.site.register((EventRegistrations, PrivateEventRegistrations))
+admin.site.register((EventRegistrations, PrivateEventRegistrations, PaidEventRegistrations))
