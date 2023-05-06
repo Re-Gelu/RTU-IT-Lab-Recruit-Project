@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
+    'django_celery_results',
+    'django_celery_beat',
     'debug_toolbar',
     'django_filters',
     
@@ -274,12 +276,59 @@ TINYMCE_DEFAULT_CONFIG = {
     "custom_undo_redo_levels": 20,
 }
 
+# Redis settings
+
+REDIS_URL = 'redis://localhost:6379/0'
+
+
+# Cache settings
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': REDIS_URL,
+    },
+    'cache_table': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
+    }
+}
+
+CACHING_TIME = 60 * 15
+
 
 # 'Extra settings' settings
 
 EXTRA_SETTINGS_ENFORCE_UPPERCASE_SETTINGS = True
 
 EXTRA_SETTINGS_CACHE_NAME = 'cache_table'
+
+
+# Payment settings
+
+QIWI_PRIVATE_KEY = ""
+
+QIWI_PAYMENTS_LIFETIME = 30
+
+SUCCESS_PAYMENT_URL = "http://127.0.0.1:8000/"
+
+
+# Celery settings
+
+CELERY_APP = 'config'
+
+CELERY_BROKER_URL = REDIS_URL
+
+CELERY_TASK_TRACK_STARTED = True
+
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+RESULT_BACKEND = REDIS_URL
+
+CACHE_BACKEND = 'django-cache'
+
+BEAT_SCHEDULE = {}
+
 
 # Tests bug fix
 
@@ -297,7 +346,20 @@ EXTRA_SETTINGS_IMAGE_UPLOAD_TO = "media/files/"
 
 EXTRA_SETTINGS_VERBOSE_NAME = "Настройки проекта"
 
-EXTRA_SETTINGS_DEFAULTS = []
+EXTRA_SETTINGS_DEFAULTS = [
+    {
+        "name": "QIWI_PRIVATE_KEY",
+        "type": "text",
+        "value": "",
+        "description": "Приватный QIWI ключ. Получить можно тут: https://qiwi.com/p2p-admin/api. ОБЯЗАТЕЛЬНО К ИЗМЕНЕНИЮ!",
+    },
+    {
+        "name": "QIWI_PAYMENTS_LIFETIME",
+        "type": "int",
+        "value": "30",
+        "description": "Срок жизни QIWI счета на оплату (в мин)",
+    },
+]
 
 
 # Prod settings
@@ -313,6 +375,10 @@ if os.environ.get("DEBUG") == '0':
     INTERNAL_IPS = str(os.environ.get("INTERNAL_IPS")).split(" ")
     
     SECRET_KEY = os.environ.get("SECRET_KEY")
+    
+    REDIS_URL = os.environ.get("REDIS_URL")
+    
+    QIWI_PRIVATE_KEY = os.environ.get("QIWI_PRIVATE_KEY")
     
     DATABASES = {
         "default": {
