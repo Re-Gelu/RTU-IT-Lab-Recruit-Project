@@ -1,11 +1,13 @@
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from config.permissions import ReadOnly, ReadOnlyIfAuthenticated
-from .models import *
-from .serializers import *
-from .mixins import RegistrationModelMixin, InvitationModelMixin, PrivateInvitationModelMixin
+from .models import (Events, PrivateEvents, PaidEvents, EventVenues, EventTypes, 
+                     EventRegistrations, PrivateEventRegistrations, PaidEventRegistrations)
+from .serializers import (EventsSerializer, PrivateEventsSerializer, PaidEventsSerializer, 
+                          EventVenuesSerializer, EventTypesSerializer, EventRegistrationsSerializer,
+                          PrivateEventRegistrationsSerializer, PaidEventRegistrationsSerializer)
+from .mixins import (RegistrationModelMixin, InvitationModelMixin, 
+                     PrivateInvitationModelMixin, PaymentRegistrationModelMixin)
 
 # ViewSets
 
@@ -25,7 +27,14 @@ class PrivateEventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin, Privat
     
     event_registration_serializer_class = PrivateEventRegistrationsSerializer
     event_registration_model = PrivateEventRegistrations
+
+class PaidEventsViewSet(viewsets.ModelViewSet, PaymentRegistrationModelMixin):
+    queryset = PaidEvents.objects.all()
+    serializer_class = PaidEventsSerializer
+    permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
     
+    event_registration_serializer_class = PaidEventRegistrationsSerializer
+    event_registration_model = PaidEventRegistrations
     
 class EventsRegistrationsViewSet(viewsets.ModelViewSet):
     queryset = EventRegistrations.objects.all()
