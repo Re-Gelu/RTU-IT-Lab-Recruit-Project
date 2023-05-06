@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
-from .models import Events, PrivateEvents, EventVenues, EventTypes, EventRegistrations, PrivateEventRegistrations
+from .models import (Events, PrivateEvents, EventVenues, EventTypes, 
+                     EventRegistrations, PrivateEventRegistrations)
 
 
 class EventsModelsTest(TestCase):
