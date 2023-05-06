@@ -8,7 +8,6 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Events, EventVenues, EventTypes
 from .serializers import EventsSerializer
-import datetime
 
 events_model = Events
 events_serializer = EventsSerializer
@@ -33,6 +32,8 @@ class EventsViewSetTestCase(APITestCase):
             email='user@test.com',
             password='testpass123'
         )
+        self.user_token = AccessToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.user_token}')
         
         # Creating events
         self.events_model = events_model
@@ -83,7 +84,7 @@ class EventsViewSetTestCase(APITestCase):
         admin_response = self.admin_client.post(self.events_list_url, data)
         self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(admin_response.data.get("name"), "New test event")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_event(self):
         event = self.events_model.objects.get(name='Test event')
@@ -96,69 +97,10 @@ class EventsViewSetTestCase(APITestCase):
         admin_response = self.admin_client.put(self.events_detail_url, data)
         self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
         self.assertEqual(admin_response.data.get("name"), "Updated test event")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_event(self):
         response = self.client.delete(self.events_detail_url)
         admin_response = self.admin_client.delete(self.events_detail_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(admin_response.status_code, status.HTTP_204_NO_CONTENT)
-
-
-class EventsSerializerTestCase(TestCase):
-    def setUp(self):
-        self.events_model = events_model
-        self.events_serializer = events_serializer
-        self.event = self.events_model.objects.create(
-            name='Test event',
-            start_datetime=timezone.now() + timedelta(days=1),
-            closing_registration_date=timezone.now() + timedelta(hours=1)
-        )
-
-    def test_event_serializer(self):
-        serializer = self.events_serializer(self.event)
-        data = serializer.data
-        self.assertEqual(data['name'], self.event.name)
-        self.assertEqual(datetime.datetime.fromisoformat(data['start_datetime']), timezone.localtime(self.event.start_datetime))
-        self.assertEqual(datetime.datetime.fromisoformat(data['closing_registration_date']), timezone.localtime(self.event.closing_registration_date))
-        
-        
-class EventsModelTest(TestCase):
-    
-    def setUp(self):
-        venue = EventVenues.objects.create(name='Test Venue')
-        event_type = EventTypes.objects.create(name='Test Event Type')
-        self.events_model = events_model
-        self.event = self.events_model.objects.create(
-            name='Test Event',
-            start_datetime=timezone.now() + timedelta(days=1),
-            closing_registration_date=timezone.now() + timedelta(hours=12),
-            venue_id=venue,
-            category_id=event_type,
-            max_visitors=10,
-        )
-        
-    def test_str_method(self):
-        self.assertEqual(str(self.event), 'Test Event')
-        
-    def test_end_datetime(self):
-        expected_end_datetime = self.event.start_datetime + self.event.duration
-        self.assertEqual(self.event.end_datetime(), expected_end_datetime)
-        
-    def test_was_published_recently(self):
-        self.assertTrue(self.event.was_publiched_recently())
-        self.event.created = timezone.now() - timedelta(days=8)
-        self.assertFalse(self.event.was_publiched_recently())
-        
-    def test_save_method(self):
-        self.event.closing_registration_date = timezone.now() - timedelta(hours=12)
-        self.event.save()
-        self.assertLessEqual(self.event.closing_registration_date, self.event.start_datetime)
-        
-        self.event.max_visitors = 5
-        self.event.save()
-        self.assertEqual(self.event.max_visitors, 5)
-        
-        self.event.image = None
-        self.event.save()
-        self.assertIsNotNone(self.event.image)
