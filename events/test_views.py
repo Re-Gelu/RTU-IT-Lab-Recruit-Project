@@ -245,3 +245,72 @@ class PrivateEventsViewSetTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(admin_response.status_code, status.HTTP_204_NO_CONTENT)
+        
+
+class EventsRegistrationModelMixinTestCase(APITestCase):
+    def setUp(self):
+        self.admin_client = APIClient()
+        self.client = APIClient()
+        self.anonymus_client = APIClient()
+        
+        # Admin user | JWT Authorization
+        self.admin_user = get_user_model().objects.create_superuser(
+            username='admin@test.com',
+            email='admin@test.com',
+            password='testpass123'
+        )
+        self.admin_token = AccessToken.for_user(self.admin_user)
+        self.admin_client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.admin_token}')
+        
+        # Default user | JWT Authorization
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.user_token = AccessToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.user_token}')
+        
+        # Creating events
+        self.event1 = Events.objects.create(
+            name='Test event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        self.event2 = Events.objects.create(
+            name='Test event 2',
+            start_datetime=timezone.now() + timedelta(days=2),
+            closing_registration_date=timezone.now() + timedelta(hours=2)
+        )
+        
+        self.events_list_url = reverse('events-list')
+        self.events_detail_url = reverse('events-detail', args=[self.event1.id])
+        self.event_registration_url = reverse('events-registration', args=[self.event1.id])
+            
+    def test_event_registration_view(self):
+        client_response = self.client.post(self.event_registration_url)
+        admin_response = self.admin_client.post(self.event_registration_url)
+        anonymus_client_response = self.anonymus_client.post(self.event_registration_url)
+        
+        self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(admin_response.data.get("event_id"), self.event1.id)
+        self.assertEqual(admin_response.data.get("is_invitation_accepted"), True)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(client_response.data.get("event_id"), self.event1.id)
+        self.assertEqual(client_response.data.get("is_invitation_accepted"), True)
+        
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+    def test_delete_event_registration_view(self):
+        self.client.post(self.event_registration_url)
+        self.admin_client.post(self.event_registration_url)
+        self.anonymus_client.post(self.event_registration_url)
+        
+        client_response = self.client.delete(self.event_registration_url)
+        admin_response = self.admin_client.delete(self.event_registration_url)
+        anonymus_client_response = self.anonymus_client.delete(self.event_registration_url)
+        
+        self.assertEqual(admin_response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(client_response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
