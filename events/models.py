@@ -215,7 +215,7 @@ class PaidEvents(AbstractEvents):
     )
     
     price = models.DecimalField(
-        max_digits=10, decimal_places=2, 
+        max_digits=10, decimal_places=2, default=0.00,
         verbose_name="Стоимость регистрации на платное мероприятие"
     )
     
