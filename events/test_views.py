@@ -48,6 +48,7 @@ class EventsViewSetTestCase(APITestCase):
         
         self.events_list_url = reverse('events-list')
         self.events_detail_url = reverse('events-detail', args=[self.event1.id])
+        self.not_exsisting_events_detail_url = reverse('events-detail', args=[100])
         
     def tearDown(self):
         self.user.delete()
@@ -82,6 +83,16 @@ class EventsViewSetTestCase(APITestCase):
         
         self.assertEqual(anonymus_client_response.data.get("id"), self.event1.id)
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_200_OK)
+        
+        # Test not exsisting objects
+        client_response = self.client.get(self.not_exsisting_events_detail_url)
+        admin_response = self.admin_client.get(self.not_exsisting_events_detail_url)
+        anonymus_client_response = self.anonymus_client.get(self.not_exsisting_events_detail_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_404_NOT_FOUND)
+        
 
     def test_create_new_event(self):
         data = {
@@ -119,6 +130,15 @@ class EventsViewSetTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Test not exsisting objects
+        client_response = self.client.put(self.not_exsisting_events_detail_url, data)
+        admin_response = self.admin_client.put(self.not_exsisting_events_detail_url, data)
+        anonymus_client_response = self.anonymus_client.put(self.not_exsisting_events_detail_url, data)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_event(self):
         client_response = self.client.delete(self.events_detail_url)
@@ -128,6 +148,15 @@ class EventsViewSetTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(admin_response.status_code, status.HTTP_204_NO_CONTENT)
+        
+        # Test not exsisting objects
+        client_response = self.client.delete(self.not_exsisting_events_detail_url)
+        admin_response = self.admin_client.delete(self.not_exsisting_events_detail_url)
+        anonymus_client_response = self.anonymus_client.delete(self.not_exsisting_events_detail_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class PrivateEventsViewSetTestCase(APITestCase):
@@ -137,6 +166,8 @@ class PrivateEventsViewSetTestCase(APITestCase):
     
     events_list_url = reverse('privateevents-list')
     events_detail_url = reverse('privateevents-detail', args=[1])
+    not_exsisting_events_detail_url = reverse('privateevents-detail', args=[100])
+    
         
     def setUp(self):
         self.admin_client = APIClient()
@@ -204,6 +235,15 @@ class PrivateEventsViewSetTestCase(APITestCase):
         self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+        # Test not exsisting objects
+        client_response = self.client.get(self.not_exsisting_events_detail_url)
+        admin_response = self.admin_client.get(self.not_exsisting_events_detail_url)
+        anonymus_client_response = self.anonymus_client.get(self.not_exsisting_events_detail_url)
+        
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_new_event(self):
         data = {
@@ -222,6 +262,7 @@ class PrivateEventsViewSetTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
 
     def test_update_event(self):
         event = self.events_model.objects.get(name='Test event')
@@ -241,7 +282,16 @@ class PrivateEventsViewSetTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
-
+        
+        # Test not exsisting objects
+        client_response = self.client.put(self.not_exsisting_events_detail_url, data)
+        admin_response = self.admin_client.put(self.not_exsisting_events_detail_url, data)
+        anonymus_client_response = self.anonymus_client.put(self.not_exsisting_events_detail_url, data)
+        
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
     def test_delete_event(self):
         client_response = self.client.delete(self.events_detail_url)
         admin_response = self.admin_client.delete(self.events_detail_url)
@@ -250,6 +300,16 @@ class PrivateEventsViewSetTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(admin_response.status_code, status.HTTP_204_NO_CONTENT)
+        
+        # Test not exsisting objects
+        client_response = self.client.delete(self.not_exsisting_events_detail_url)
+        admin_response = self.admin_client.delete(self.not_exsisting_events_detail_url)
+        anonymus_client_response = self.anonymus_client.delete(self.not_exsisting_events_detail_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 
 class PaidEventsViewSetTestCase(PrivateEventsViewSetTestCase):
@@ -258,15 +318,16 @@ class PaidEventsViewSetTestCase(PrivateEventsViewSetTestCase):
     
     events_list_url = reverse('paidevents-list')
     events_detail_url = reverse('paidevents-detail', args=[1])
+    not_exsisting_events_detail_url = reverse('paidevents-detail', args=[100])
 
 
 class EventsRegistrationModelMixinTestCase(APITestCase):
     
     events_model = Events
-    
-    events_list_url = reverse('events-list')
+
     events_detail_url = reverse('events-detail', args=[1])
     event_registration_url = reverse('events-registration', args=[1])
+    not_exsisting_event_registration_url = reverse('events-registration', args=[100])
     
     def setUp(self):
         self.admin_client = APIClient()
@@ -322,6 +383,15 @@ class EventsRegistrationModelMixinTestCase(APITestCase):
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         
+        # Test not exsisting objects
+        client_response = self.client.post(self.not_exsisting_event_registration_url)
+        admin_response = self.admin_client.post(self.not_exsisting_event_registration_url)
+        anonymus_client_response = self.anonymus_client.post(self.not_exsisting_event_registration_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(admin_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
     def test_delete_event_registration_view(self):
         self.client.post(self.event_registration_url)
         self.admin_client.post(self.event_registration_url)
@@ -335,16 +405,29 @@ class EventsRegistrationModelMixinTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         
+        # Test not exsisting objects
+        client_response = self.client.delete(self.not_exsisting_event_registration_url)
+        admin_response = self.admin_client.delete(self.not_exsisting_event_registration_url)
+        anonymus_client_response = self.anonymus_client.delete(self.not_exsisting_event_registration_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
 
 class EventsInvitationModelMixinTestCase(APITestCase):
     
-    events_model = Events
-    events_serializer = EventInvitationsSerializer
+    events_model = PrivateEvents
+    events_serializer = PrivateEventsSerializer
     
-    events_list_url = reverse('events-list')
-    events_detail_url = reverse('events-detail', args=[1])
-    event_invitation_url = reverse('events-invitation', args=[1])
-    event_confrim_invitation_url = reverse('events-confrim-invitation', args=[1])
+    events_detail_url = reverse('privateevents-detail', args=[1])
+    event_invitation_url = reverse('privateevents-invitation', args=[1])
+    event_invitation_code_url = reverse('privateevents-invitation-code', args=[1])
+    event_confrim_invitation_url = reverse('privateevents-confrim-invitation', args=[1])
+    
+    not_exsisting_event_invitation_url = reverse('privateevents-invitation', args=[100])
+    not_exsisting_event_invitation_code_url = reverse('privateevents-invitation-code', args=[100])
+    not_exsisting_event_confrim_invitation_url = reverse('privateevents-confrim-invitation', args=[100])
     
     def setUp(self):
         self.admin_client = APIClient()
@@ -413,6 +496,15 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(admin_response.status_code, status.HTTP_400_BAD_REQUEST)
         
+        # Test not exsisting objects
+        anonymus_client_response = self.anonymus_client.post(self.not_exsisting_event_invitation_url, user_data)
+        client_response = self.client.post(self.not_exsisting_event_invitation_url, user_data)
+        admin_response = self.admin_client.post(self.not_exsisting_event_invitation_url, user_data)
+        
+        self.assertEqual(admin_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(client_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
     def test_confrim_event_invitation_view(self):
         # Create invitations and confirmations
         admin_data = { 'user_id': self.user.id, }
@@ -441,6 +533,19 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
         
+    def test_confrim_not_exsisting_event_invitation_view(self):
+        admin_data = { 'user_id': self.user.id, }
+        user_data = { 'user_id': self.admin_user.id, }
+        
+        # Test not exsisting objects
+        client_response = self.client.post(self.not_exsisting_event_confrim_invitation_url, user_data)
+        admin_response = self.admin_client.post(self.not_exsisting_event_confrim_invitation_url, admin_data)
+        anonymus_client_response = self.anonymus_client.post(self.not_exsisting_event_confrim_invitation_url, user_data)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
     def test_delete_event_invitation_view(self):
         # Create invitations and confirmations
         admin_data = { 'user_id': self.user.id, }
@@ -457,10 +562,41 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         
-        # Test confrim not existing invitations
+        # Test confrim deleted invitations
         client_response = self.client.post(self.event_confrim_invitation_url)
         admin_response = self.admin_client.post(self.event_confrim_invitation_url)
         
         self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
+        
+        # Test not exsisting objects
+        client_response = self.client.delete(self.not_exsisting_event_invitation_url)
+        admin_response = self.admin_client.delete(self.not_exsisting_event_invitation_url)
+        anonymus_client_response = self.anonymus_client.delete(self.not_exsisting_event_invitation_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_get_invitation_code(self):
+        anonymus_client_response = self.anonymus_client.get(self.event_invitation_code_url)
+        client_response = self.client.get(self.event_invitation_code_url)
+        admin_response = self.admin_client.get(self.event_invitation_code_url)
+        
+        private_event = self.events_model.objects.get(id=1)
+        
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
+        
+        self.assertEqual(admin_response.data.get("invitation_code"), private_event.invitation_code)
+        
+        # Test not exsisting objects
+        client_response = self.client.get(self.not_exsisting_event_invitation_code_url)
+        admin_response = self.admin_client.get(self.not_exsisting_event_invitation_code_url)
+        anonymus_client_response = self.anonymus_client.get(self.not_exsisting_event_invitation_code_url)
+        
+        self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(admin_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         

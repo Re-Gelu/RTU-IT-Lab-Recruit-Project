@@ -14,13 +14,13 @@ class EventsSerializer(serializers.ModelSerializer):
 class PrivateEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateEvents
-        fields = '__all__'
+        exclude = ('invitation_code', )
         
         
 class PaidEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaidEvents
-        fields = '__all__'
+        exclude = ('invitation_code', )
         
         
 class EventVenuesSerializer(serializers.ModelSerializer):
@@ -67,3 +67,20 @@ class EventInvitationsSerializer(EventRegistrationsSerializer):
     class Meta:
             model = EventRegistrations
             fields = ['user_id', ]
+            
+
+class PrivateEventsCodeInvitationsSerializer(serializers.ModelSerializer):
+    #invitation_code = serializers.IntegerField(min_value=1000000000, max_value=9999999999)
+    class Meta:
+            model = PrivateEvents
+            fields = ['invitation_code', ]
+            extra_kwargs = {'invitation_code': {'read_only': False}}
+            
+    def validate_invitation_code(self, value):
+        pk = self.context.get("pk")
+        event = PrivateEvents.objects.filter(pk=pk).first()
+        
+        if pk and event and not event.invitation_code == value:
+            raise serializers.ValidationError("Неправильный код приглашения")
+            
+        return value

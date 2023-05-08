@@ -11,7 +11,7 @@ from .mixins import (RegistrationModelMixin, InvitationModelMixin,
 
 # ViewSets
 
-class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin, InvitationModelMixin):
+class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
     queryset = Events.objects.all()
     serializer_class = EventsSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
@@ -20,7 +20,7 @@ class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin, InvitationMod
     event_registration_model = EventRegistrations
     
 
-class PrivateEventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin, PrivateInvitationModelMixin):
+class PrivateEventsViewSet(viewsets.ModelViewSet, PrivateInvitationModelMixin):
     queryset = PrivateEvents.objects.all()
     serializer_class = PrivateEventsSerializer
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]

@@ -2,11 +2,12 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from extra_settings.models import Setting
 from config.qiwi import get_QIWI_p2p
-from .serializers import EventInvitationsSerializer, PaidEventRegistrationsSerializer
+from .serializers import EventInvitationsSerializer, PrivateEventsCodeInvitationsSerializer
 
 class RegistrationModelMixin:
     """ Adds event registration functionality.
@@ -18,7 +19,9 @@ class RegistrationModelMixin:
     event_registration_serializer_class = None
     event_registration_model = None
     
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    permission_classes=[IsAuthenticated, ]
+    
+    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=permission_classes)
     def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -41,15 +44,12 @@ class RegistrationModelMixin:
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-class InvitationModelMixin:
+class InvitationModelMixin(RegistrationModelMixin):
     """ Adds event invitation functionality.
     
     Required fields in ViewSet: 
     1) event_registration_model
     2) event_registration_serializer_class """
-    
-    event_registration_serializer_class = None
-    event_registration_model = None
     
     permission_classes=[IsAuthenticated, ]
     
@@ -81,7 +81,7 @@ class InvitationModelMixin:
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=permission_classes)
     def confrim_invitation(self, request, pk=None):
         """ Принять приглашение на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -99,6 +99,29 @@ class InvitationModelMixin:
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'], permission_classes=[IsAdminUser, ])
+    def invitation_code(self, request, pk=None):
+        """ Получить код для приглашения на конкретное мероприятие пользователя или группы пользователей 
+        (Только для администрации) """
+        instance = self.get_object()
+        return Response({'invitation_code': instance.invitation_code})
+    
+    @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=permission_classes)
+    def registration(self, request, pk=None):
+        """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей 
+        при помощи кода приглашения"""
+        
+        # Проверка на совпадение кода 
+        code_serializer = self.get_serializer(data=request.data, context={'pk': pk})
+        code_serializer.is_valid(raise_exception=True)
+        
+        return super().registration(request, pk)
+    
+    @registration.mapping.delete
+    def delete_registration(self, request, pk=None):
+        """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
+        return super().delete_registration(request, pk)
     
     @action(detail=True, methods=['get'], permission_classes=permission_classes)
     def guestlist(self, request, pk=None):
@@ -124,9 +147,6 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
         Required fields in ViewSet: 
         1) event_registration_model
         2) event_registration_serializer_class """
-    
-    event_registration_serializer_class = None
-    event_registration_model = None
     
     permission_classes=[IsAuthenticated, ]
     
