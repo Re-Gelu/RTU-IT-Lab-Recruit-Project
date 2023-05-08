@@ -190,6 +190,16 @@ class PrivateEvents(AbstractEvents):
         verbose_name="Зарегестрированные на приватное мероприятие пользователи",
     )
     
+    invitation_code = ShortUUIDField(
+        editable=False,
+        auto_created=True,
+        alphabet="0123456789",
+        unique=True,
+        verbose_name="UUID для приглашения на мероприятие",
+        length=10,
+        max_length=10,
+    )
+    
     class Meta:
         ordering = ('name',)
         verbose_name = 'приватное мероприятие'
@@ -217,6 +227,16 @@ class PaidEvents(AbstractEvents):
     price = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00,
         verbose_name="Стоимость регистрации на платное мероприятие"
+    )
+    
+    invitation_code = ShortUUIDField(
+        editable=False,
+        auto_created=True,
+        alphabet="0123456789",
+        unique=True,
+        verbose_name="UUID для приглашения на мероприятие",
+        length=10,
+        max_length=10,
     )
     
     class Meta:
