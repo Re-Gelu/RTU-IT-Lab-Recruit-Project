@@ -81,7 +81,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=permission_classes)
+    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
     def confrim_invitation(self, request, pk=None):
         """ Принять приглашение на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -107,7 +107,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         instance = self.get_object()
         return Response({'invitation_code': instance.invitation_code})
     
-    @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=permission_classes)
+    @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=[IsAuthenticated, ])
     def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей 
         при помощи кода приглашения"""
@@ -123,7 +123,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
         return super().delete_registration(request, pk)
     
-    @action(detail=True, methods=['get'], permission_classes=permission_classes)
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, ])
     def guestlist(self, request, pk=None):
         """ Получить список пользователей, принявших приглашение на конкретное мероприятие """
         self.queryset = self.event_registration_model.objects.filter(event_id=pk, is_invitation_accepted=True)
