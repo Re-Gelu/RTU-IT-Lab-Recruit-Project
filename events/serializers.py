@@ -39,7 +39,7 @@ class EventRegistrationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventRegistrations
         fields = '__all__'
-        read_only_fields = ['shortuuid', ]
+        read_only_fields = ('shortuuid', )
         
         
     def validate(self, attrs):
@@ -53,27 +53,29 @@ class PrivateEventRegistrationsSerializer(EventRegistrationsSerializer):
     class Meta:
         model = PrivateEventRegistrations
         fields = '__all__'
-        read_only_fields = ['shortuuid', ]
+        read_only_fields = ('shortuuid', )
+
 
 
 class PaidEventRegistrationsSerializer(EventRegistrationsSerializer):
     class Meta:
         model = PaidEventRegistrations
         fields = '__all__'
-        read_only_fields = ['shortuuid', 'payment_status', 'payment_link']
+        read_only_fields = ('shortuuid', 'payment_status', 'payment_link')
 
 
 class EventInvitationsSerializer(EventRegistrationsSerializer):
     class Meta:
             model = EventRegistrations
-            fields = ['user_id', ]
+            fields = ('user_id', )
+            extra_kwargs = {'invitation_code': {'read_only': False}}
             
 
 class PrivateEventsCodeInvitationsSerializer(serializers.ModelSerializer):
     #invitation_code = serializers.IntegerField(min_value=1000000000, max_value=9999999999)
     class Meta:
             model = PrivateEvents
-            fields = ['invitation_code', ]
+            fields = ('invitation_code', )
             extra_kwargs = {'invitation_code': {'read_only': False}}
             
     def validate_invitation_code(self, value):

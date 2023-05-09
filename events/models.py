@@ -191,7 +191,6 @@ class PrivateEvents(AbstractEvents):
     )
     
     invitation_code = ShortUUIDField(
-        editable=False,
         auto_created=True,
         alphabet="0123456789",
         unique=True,
@@ -230,7 +229,6 @@ class PaidEvents(AbstractEvents):
     )
     
     invitation_code = ShortUUIDField(
-        editable=False,
         auto_created=True,
         alphabet="0123456789",
         unique=True,
