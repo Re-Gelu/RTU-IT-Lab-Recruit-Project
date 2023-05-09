@@ -294,7 +294,7 @@ CACHES = {
     }
 }
 
-CACHING_TIME = 60 * 15
+CACHING_TIME = 60 * 5
 
 
 # 'Extra settings' settings
@@ -330,7 +330,7 @@ CACHE_BACKEND = 'django-cache'
 BEAT_SCHEDULE = {}
 
 
-# Tests bug fix
+# Tests cache fix
 
 if 'test' in sys.argv: 
     
