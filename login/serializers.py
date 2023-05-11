@@ -1,8 +1,8 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from djoser import serializers as djoser_serializers
 from djoser.conf import settings
 from rest_framework import serializers
-        
+
 
 class CustomUserSerializer(djoser_serializers.UserSerializer):
     class Meta:

@@ -1,9 +1,11 @@
+import datetime
+from datetime import timedelta
+
 from django.test import TestCase
 from django.utils import timezone
-from datetime import timedelta
+
 from .models import Events
 from .serializers import EventsSerializer
-import datetime
 
 events_serializer = EventsSerializer
 

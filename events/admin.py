@@ -1,17 +1,11 @@
-from django.contrib import admin
 from django.conf import settings
-from filebrowser.base import FileObject
+from django.contrib import admin
 from django.utils.html import format_html
-from .models import (
-    EventVenues,
-    EventTypes, 
-    Events, 
-    PrivateEvents,
-    PaidEvents,
-    EventRegistrations, 
-    PrivateEventRegistrations,
-    PaidEventRegistrations
-)
+from filebrowser.base import FileObject
+
+from .models import (EventRegistrations, Events, EventTypes, EventVenues,
+                     PaidEventRegistrations, PaidEvents,
+                     PrivateEventRegistrations, PrivateEvents)
 
 
 class EventRegistrationsInline(admin.TabularInline):
