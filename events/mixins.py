@@ -163,7 +163,7 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
         serializer = self.event_registration_serializer_class(data={
             "event_id": pk, 
             "user_id": current_user.id,
-            "is_invitation_accepted": True,
+            "is_invitation_accepted": False,
         })
         serializer.is_valid(raise_exception=True)
         paid_event = serializer.save()

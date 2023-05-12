@@ -300,7 +300,7 @@ class EventRegistrations(AbstractEventRegistrations):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
+        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID пользователя - {self.user_id}"
     
     class Meta:
         verbose_name = 'регистрацию на мероприятие'
@@ -335,7 +335,7 @@ class PrivateEventRegistrations(AbstractEventRegistrations):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Запись на приватное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
+        return f"Запись на приватное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID пользователя - {self.user_id}"
     
     class Meta:
         verbose_name = 'регистрацию на приватное мероприятие'
@@ -374,7 +374,6 @@ class PaidEventRegistrations(AbstractEventRegistrations):
     payment_link = models.URLField(
         verbose_name="Ссылка на оплату",
         blank=True, null=True,
-        auto_created=True,
     )
 
     payment_status = models.TextField(
@@ -382,7 +381,6 @@ class PaidEventRegistrations(AbstractEventRegistrations):
         default=PaymentStatuses.CREATED,
         verbose_name="Статус оплаты",
         blank=True, null=True,
-        auto_created=True
     )
     
     def save(self, *args, **kwargs):
@@ -391,7 +389,7 @@ class PaidEventRegistrations(AbstractEventRegistrations):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Запись на платное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID мользователя - {self.user_id}"
+        return f"Запись на платное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID пользователя - {self.user_id}"
     
     class Meta:
         verbose_name = 'регистрацию на платное мероприятие'

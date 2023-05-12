@@ -71,12 +71,8 @@ class EventInvitationsSerializer(EventRegistrationsSerializer):
             extra_kwargs = {'invitation_code': {'read_only': False}}
             
 
-class PrivateEventsCodeInvitationsSerializer(serializers.ModelSerializer):
-    #invitation_code = serializers.IntegerField(min_value=1000000000, max_value=9999999999)
-    class Meta:
-            model = PrivateEvents
-            fields = ('invitation_code', )
-            extra_kwargs = {'invitation_code': {'read_only': False}}
+class PrivateEventsCodeInvitationsSerializer(serializers.Serializer):
+    invitation_code = serializers.CharField(label='UUID для приглашения на мероприятие', max_length=10, required=True)
             
     def validate_invitation_code(self, value):
         pk = self.context.get("pk")
