@@ -31,6 +31,14 @@
             "args": ["-A", "config", "beat", "--loglevel=info"],
             "justMyCode": true
         },
+        {
+            "name": "Python: SMTP Server",
+            "type": "python",
+            "request": "launch",
+            "module": "aiosmtpd",
+            "args": ["-n", "-l", "localhost:8025",],
+            "justMyCode": true
+        }
     ],
     "compounds": [
         {
