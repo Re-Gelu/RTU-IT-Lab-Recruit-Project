@@ -1,7 +1,9 @@
-from rest_framework import serializers
 from django.utils import timezone
-from .models import (Events, PrivateEvents, PaidEvents, EventVenues, EventTypes, 
-                     EventRegistrations, PrivateEventRegistrations, PaidEventRegistrations)
+from rest_framework import serializers
+
+from .models import (EventRegistrations, Events, EventTypes, EventVenues,
+                     PaidEventRegistrations, PaidEvents,
+                     PrivateEventRegistrations, PrivateEvents)
 
 # Serializers
 

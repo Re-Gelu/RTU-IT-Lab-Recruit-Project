@@ -1,10 +1,11 @@
+import datetime
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
-from tinymce import models as tinymce_models
 from shortuuid.django_fields import ShortUUIDField
-import datetime
+from tinymce import models as tinymce_models
 
 events_images_folder_path = "events_images/"
 

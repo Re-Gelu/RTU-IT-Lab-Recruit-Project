@@ -1,13 +1,15 @@
-from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
-from rest_framework_simplejwt.tokens import AccessToken
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
-from datetime import timedelta
-from .models import Events, PrivateEvents, PaidEvents
-from .serializers import (EventsSerializer, PrivateEventsSerializer, 
-                          PaidEventsSerializer, EventInvitationsSerializer)
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
+
+from .models import Events, PaidEvents, PrivateEvents
+from .serializers import (EventInvitationsSerializer, EventsSerializer,
+                          PaidEventsSerializer, PrivateEventsSerializer)
 
 
 class EventsViewSetTestCase(APITestCase):

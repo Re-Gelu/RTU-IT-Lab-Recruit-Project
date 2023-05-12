@@ -1,20 +1,26 @@
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework import viewsets
-from config.permissions import ReadOnly, ReadOnlyIfAuthenticated
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
-from django.views.decorators.vary import vary_on_headers
 from django.conf import settings
-from .models import (Events, PrivateEvents, PaidEvents, EventVenues, EventTypes, 
-                     EventRegistrations, PrivateEventRegistrations, PaidEventRegistrations)
-from .serializers import (EventsSerializer, PrivateEventsSerializer, PaidEventsSerializer, 
-                          EventVenuesSerializer, EventTypesSerializer, EventRegistrationsSerializer,
-                          PrivateEventRegistrationsSerializer, PaidEventRegistrationsSerializer)
-from .mixins import (RegistrationModelMixin, PrivateInvitationModelMixin, PaymentRegistrationModelMixin)
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+
+from config.permissions import ReadOnly, ReadOnlyIfAuthenticated
+
+from .mixins import (PaymentRegistrationModelMixin,
+                     PrivateInvitationModelMixin, RegistrationModelMixin)
+from .models import (EventRegistrations, Events, EventTypes, EventVenues,
+                     PaidEventRegistrations, PaidEvents,
+                     PrivateEventRegistrations, PrivateEvents)
+from .serializers import (EventRegistrationsSerializer, EventsSerializer,
+                          EventTypesSerializer, EventVenuesSerializer,
+                          PaidEventRegistrationsSerializer,
+                          PaidEventsSerializer,
+                          PrivateEventRegistrationsSerializer,
+                          PrivateEventsSerializer)
 
 # Кэшируются только GET и HEAD ответы со статусом 200
-CACHING_TIME = getattr(settings, 'CACHING_TIME', 60)
-default_decorators = (cache_page(CACHING_TIME), vary_on_headers("Authorization",))
+default_decorators = (cache_page(getattr(settings, 'CACHING_TIME', 60)), vary_on_headers("Authorization",))
 
 
 # ViewSets
