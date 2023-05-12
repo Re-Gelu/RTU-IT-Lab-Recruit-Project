@@ -175,7 +175,7 @@ class EventRegistrationsTest(TestCase):
             event_id=self.event,
             user_id=self.user
         )
-        self.assertEqual(event_registration.__str__(), f"Запись на мероприятие №{event_registration.shortuuid}, ID мероприятия - {self.event}, ID мользователя - {self.user}")
+        self.assertEqual(event_registration.__str__(), f"Запись на мероприятие №{event_registration.shortuuid}, ID мероприятия - {self.event}, ID пользователя - {self.user}")
         self.assertEqual(event_registration.inviting_user_id, self.user)
         self.assertFalse(event_registration.is_invitation_accepted)
         
@@ -184,7 +184,7 @@ class EventRegistrationsTest(TestCase):
             event_id=self.private_event,
             user_id=self.user
         )
-        self.assertEqual(private_event_registration.__str__(), f"Запись на приватное мероприятие №{private_event_registration.shortuuid}, ID мероприятия - {self.private_event}, ID мользователя - {self.user}")
+        self.assertEqual(private_event_registration.__str__(), f"Запись на приватное мероприятие №{private_event_registration.shortuuid}, ID мероприятия - {self.private_event}, ID пользователя - {self.user}")
         self.assertEqual(private_event_registration.inviting_user_id, self.user)
         self.assertFalse(private_event_registration.is_invitation_accepted)
         

@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from extra_settings.models import Setting
-from rest_framework import serializers, status
+from rest_framework import status
+from rest_framework.serializers import Serializer
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -24,7 +25,7 @@ class RegistrationModelMixin:
     
     permission_classes=[IsAuthenticated, ]
     
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=permission_classes)
+    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=permission_classes)
     def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -84,7 +85,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=[IsAuthenticated, ])
     def confrim_invitation(self, request, pk=None):
         """ Принять приглашение на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -153,7 +154,7 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
     
     permission_classes=[IsAuthenticated, ]
     
-    @action(detail=True, methods=['post'], serializer_class=None, permission_classes=[IsAuthenticated, ])
+    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=[IsAuthenticated, ])
     def registration(self, request, pk=None):
 
         p2p = get_QIWI_p2p()
@@ -180,8 +181,10 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
             comment=f"Оплата регистрации №{paid_event.shortuuid}"
         )
         
+        success_payment_url = getattr(settings, "SUCCESS_PAYMENT_URL", "")
+        
         # Доабавление ссылки на оплату
-        paid_event.payment_link = bill.pay_url + f"&successUrl={settings.SUCCESS_PAYMENT_URL}"
+        paid_event.payment_link = bill.pay_url + f"&successUrl={success_payment_url}"
         paid_event.save()
         serializer = self.event_registration_serializer_class(paid_event)
         
