@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 import os
 import sys
 
@@ -327,7 +328,20 @@ RESULT_BACKEND = REDIS_URL
 
 CACHE_BACKEND = 'django-cache'
 
-BEAT_SCHEDULE = {}
+CELERYBEAT_SCHEDULE = {
+    'payment_check_every_2_min': {
+        'task': 'events.tasks.payment_handler',
+        'schedule': crontab(minute='*/2'), # every 2 minutes
+    },
+    'send_registration_reminder_every_day': {
+        'task': 'events.tasks.send_registration_reminder',
+        'schedule': 5#crontab(hour=9, minute=0), every day at 9am
+    },
+}
+
+BEAT_SCHEDULE = CELERYBEAT_SCHEDULE
+
+NOTIFICATION_DAYS_BEFORE_EVENTS = (5, 3, 1)
 
 
 # Tests cache fix
@@ -362,6 +376,17 @@ EXTRA_SETTINGS_DEFAULTS = [
         "description": "Срок жизни QIWI счета на оплату (в мин)",
     },
 ]
+
+
+# Email settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'localhost'
+
+EMAIL_PORT = '8025'
+
+DEFAULT_EMAIL_FROM = 'from@example.com'
 
 
 # Prod settings
