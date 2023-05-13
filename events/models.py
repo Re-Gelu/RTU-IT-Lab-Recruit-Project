@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from shortuuid.django_fields import ShortUUIDField
@@ -139,8 +138,6 @@ class AbstractEvents(models.Model):
     
     def save(self, *args, **kwargs):
         self.updated = timezone.now()
-        #if self.registered_visitors >= self.max_visitors:
-            #self.registered_visitors = self.max_visitors
         if self.closing_registration_date and self.start_datetime and self.closing_registration_date >= self.start_datetime:
             self.closing_registration_date = self.start_datetime
         if not self.image:
