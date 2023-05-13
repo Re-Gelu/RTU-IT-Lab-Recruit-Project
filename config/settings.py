@@ -304,6 +304,31 @@ EXTRA_SETTINGS_ENFORCE_UPPERCASE_SETTINGS = True
 
 EXTRA_SETTINGS_CACHE_NAME = 'cache_table'
 
+EXTRA_SETTINGS_SHOW_TYPE_LIST_FILTER = True
+
+EXTRA_SETTINGS_SHOW_NAME_PREFIX_LIST_FILTER = True
+
+EXTRA_SETTINGS_FILE_UPLOAD_TO = "media/files/"
+
+EXTRA_SETTINGS_IMAGE_UPLOAD_TO = "media/files/"
+
+EXTRA_SETTINGS_VERBOSE_NAME = "Настройки проекта"
+
+EXTRA_SETTINGS_DEFAULTS = [
+    {
+        "name": "QIWI_PRIVATE_KEY",
+        "type": "text",
+        "value": "",
+        "description": "Приватный QIWI ключ. Получить можно тут: https://qiwi.com/p2p-admin/api. ОБЯЗАТЕЛЬНО К ИЗМЕНЕНИЮ!",
+    },
+    {
+        "name": "QIWI_PAYMENTS_LIFETIME",
+        "type": "int",
+        "value": "30",
+        "description": "Срок жизни QIWI счета на оплату (в мин)",
+    },
+]
+
 
 # Payment settings
 
@@ -317,6 +342,8 @@ SUCCESS_PAYMENT_URL = "http://127.0.0.1:8000/"
 # Celery settings
 
 CELERY_APP = 'config'
+
+BROKER_BACKEND = REDIS_URL
 
 CELERY_BROKER_URL = REDIS_URL
 
@@ -344,40 +371,6 @@ BEAT_SCHEDULE = CELERYBEAT_SCHEDULE
 NOTIFICATION_DAYS_BEFORE_EVENTS = (5, 3, 1)
 
 
-# Tests cache fix
-
-if 'test' in sys.argv: 
-    
-    EXTRA_SETTINGS_CACHE_NAME = 'default'
-
-    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
-
-EXTRA_SETTINGS_SHOW_TYPE_LIST_FILTER = True
-
-EXTRA_SETTINGS_SHOW_NAME_PREFIX_LIST_FILTER = True
-
-EXTRA_SETTINGS_FILE_UPLOAD_TO = "media/files/"
-
-EXTRA_SETTINGS_IMAGE_UPLOAD_TO = "media/files/"
-
-EXTRA_SETTINGS_VERBOSE_NAME = "Настройки проекта"
-
-EXTRA_SETTINGS_DEFAULTS = [
-    {
-        "name": "QIWI_PRIVATE_KEY",
-        "type": "text",
-        "value": "",
-        "description": "Приватный QIWI ключ. Получить можно тут: https://qiwi.com/p2p-admin/api. ОБЯЗАТЕЛЬНО К ИЗМЕНЕНИЮ!",
-    },
-    {
-        "name": "QIWI_PAYMENTS_LIFETIME",
-        "type": "int",
-        "value": "30",
-        "description": "Срок жизни QIWI счета на оплату (в мин)",
-    },
-]
-
-
 # Email settings
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -390,6 +383,27 @@ EMAIL_HOST_USER = 'from@example.com'
 
 EMAIL_HOST_PASSWORD = None
 
+
+# Tests fix
+
+if 'test' in sys.argv: 
+    
+    EXTRA_SETTINGS_CACHE_NAME = 'default'
+
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
+    
+    EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+    
+    BROKER_BACKEND = 'memory://'
+    
+    CELERY_BROKER_URL = 'memory://'
+    
+    RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+    
+    CELERY_TASK_ALWAYS_EAGER = True
+    
+    CELERY_TASK_EAGER_PROPAGATES = True
+    
 
 # Prod settings
 

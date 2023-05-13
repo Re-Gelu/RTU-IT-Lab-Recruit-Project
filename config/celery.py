@@ -8,7 +8,7 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('config', broker=settings.REDIS_URL)
+app = Celery('config', broker=settings.BROKER_BACKEND)
       
 app.config_from_object('config.settings')
 app.autodiscover_tasks()
