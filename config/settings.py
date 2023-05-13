@@ -335,7 +335,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'send_registration_reminder_every_day': {
         'task': 'events.tasks.send_registration_reminder',
-        'schedule': 5#crontab(hour=9, minute=0), every day at 9am
+        'schedule': crontab(hour=9, minute=0), # every day at 9am
     },
 }
 
@@ -386,7 +386,9 @@ EMAIL_HOST = 'localhost'
 
 EMAIL_PORT = '8025'
 
-DEFAULT_EMAIL_FROM = 'from@example.com'
+EMAIL_HOST_USER = 'from@example.com'
+
+EMAIL_HOST_PASSWORD = None
 
 
 # Prod settings
@@ -417,3 +419,11 @@ if os.environ.get("DEBUG") == '0':
             "PORT": os.environ.get("SQL_PORT"),
         }
     }
+    
+    EMAIL_HOST = os.environ.get("EMAIL_HOST")
+
+    EMAIL_PORT = os.environ.get("EMAIL_PORT")
+
+    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
