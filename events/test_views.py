@@ -8,7 +8,8 @@ from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import Events, PaidEvents, PrivateEvents
-from .serializers import (EventsSerializer, PaidEventsSerializer, PrivateEventsSerializer)
+from .serializers import (EventsSerializer, PaidEventsSerializer,
+                          PrivateEventsSerializer)
 
 
 class EventsViewSetTestCase(APITestCase):

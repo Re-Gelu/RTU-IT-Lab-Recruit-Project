@@ -14,21 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import mimetypes
-import debug_toolbar
 
-from django.contrib import admin
-from django.urls import path, re_path, include
+import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework import permissions
-from rest_framework import routers
-from drf_yasg.views import get_schema_view
+from django.contrib import admin
+from django.urls import include, path, re_path
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 from filebrowser.sites import site as filebrowser_site
+from rest_framework import permissions, routers
 
+from events.views import (EventsViewSet, EventTypesViewSet, EventVenuesViewSet,
+                          PaidEventsViewSet, PrivateEventsViewSet)
 from login.views import GroupsViewSet
-from events.views import (EventsViewSet, PrivateEventsViewSet, PaidEventsViewSet,
-                         EventVenuesViewSet, EventTypesViewSet)
 
 schema_view = get_schema_view(
     openapi.Info(

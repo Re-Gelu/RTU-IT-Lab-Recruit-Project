@@ -2,10 +2,10 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from extra_settings.models import Setting
 from rest_framework import status
-from rest_framework.serializers import Serializer
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 from config.qiwi import get_QIWI_p2p
 

@@ -1,15 +1,16 @@
-from django.dispatch import receiver
 from django.db.models import signals
+from django.dispatch import receiver
 
-from .models import (Events, PrivateEvents, PaidEvents, EventRegistrations, 
-                     PrivateEventRegistrations, PaidEventRegistrations)
-
-from .tasks import (send_registration_notification, send_private_registration_notification, 
-                    send_paid_registration_notification, notify_event_cancellation,
-                    notify_private_event_cancellation, notify_paid_event_cancellation,
-                    send_registration_delete_notification, send_private_registration_delete_notification,
-                    send_paid_registration_delete_notification)
-
+from .models import (EventRegistrations, Events, PaidEventRegistrations,
+                     PaidEvents, PrivateEventRegistrations, PrivateEvents)
+from .tasks import (notify_event_cancellation, notify_paid_event_cancellation,
+                    notify_private_event_cancellation,
+                    send_paid_registration_delete_notification,
+                    send_paid_registration_notification,
+                    send_private_registration_delete_notification,
+                    send_private_registration_notification,
+                    send_registration_delete_notification,
+                    send_registration_notification)
 
 # Tasks based on model signals 
 

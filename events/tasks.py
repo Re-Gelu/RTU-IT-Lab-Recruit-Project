@@ -1,13 +1,14 @@
 from datetime import timedelta
+
 from celery import shared_task
-from django.db.models import Q
-from django.core.mail import send_mail
-from django.utils import timezone
 from django.conf import settings
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.utils import timezone
 
 from config.qiwi import get_QIWI_p2p
 
-from .models import EventRegistrations,  PaidEventRegistrations
+from .models import EventRegistrations, PaidEventRegistrations
 
 payment_statuses = PaidEventRegistrations.PaymentStatuses
 

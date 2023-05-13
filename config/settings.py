@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-from pathlib import Path
-from celery.schedules import crontab
 import os
 import sys
+from pathlib import Path
+
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -343,8 +344,6 @@ SUCCESS_PAYMENT_URL = "http://127.0.0.1:8000/"
 
 CELERY_APP = 'config'
 
-BROKER_BACKEND = REDIS_URL
-
 CELERY_BROKER_URL = REDIS_URL
 
 CELERY_TASK_TRACK_STARTED = True
@@ -393,8 +392,6 @@ if 'test' in sys.argv:
     CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
     
     EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-    
-    BROKER_BACKEND = 'memory://'
     
     CELERY_BROKER_URL = 'memory://'
     
