@@ -95,21 +95,21 @@ class EventRegistrationsSerializerTest(TestCase):
             venue_id=1
         )
         self.event_registration_data = {
-            'user_id': self.user.id,
-            'event_id': self.event.id
+            'user': self.user.id,
+            'event': self.event.id
         }
     
     def test_create_event_registration(self):
         serializer = EventRegistrationsSerializer(data=self.event_registration_data)
         self.assertTrue(serializer.is_valid())
         event_registration = serializer.save()
-        self.assertEqual(event_registration.user_id, self.user)
-        self.assertEqual(event_registration.event_id, self.event)
+        self.assertEqual(event_registration.user, self.user)
+        self.assertEqual(event_registration.event, self.event)
         
     def test_update_event_registration(self):
         event_registration = EventRegistrations.objects.create(
-            user_id=self.user,
-            event_id=self.event
+            user=self.user,
+            event=self.event
         )
         event_registration_data_updated = {
             'is_invitation_accepted': True
@@ -129,8 +129,8 @@ class EventRegistrationsSerializerTest(TestCase):
             closing_registration_date=timezone.now() - timezone.timedelta(hours=1)
         )
         event_registration_data = {
-            'user_id': self.user.id,
-            'event_id': event_with_closing_date.id
+            'user': self.user.id,
+            'event': event_with_closing_date.id
         }
         serializer = EventRegistrationsSerializer(data=event_registration_data)
         self.assertFalse(serializer.is_valid())

@@ -376,11 +376,11 @@ class EventsRegistrationModelMixinTestCase(APITestCase):
         anonymus_client_response = self.anonymus_client.post(self.event_registration_url)
         
         self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(admin_response.data.get("event_id"), self.event1.id)
+        self.assertEqual(admin_response.data.get("event"), self.event1.id)
         self.assertEqual(admin_response.data.get("is_invitation_accepted"), True)
         
         self.assertEqual(client_response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(client_response.data.get("event_id"), self.event1.id)
+        self.assertEqual(client_response.data.get("event"), self.event1.id)
         self.assertEqual(client_response.data.get("is_invitation_accepted"), True)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -472,21 +472,21 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         
     def test_create_event_invitation_view(self):
         # Create invitations and confirmations
-        admin_data = { 'user_id': self.user.id, }
-        user_data = { 'user_id': self.admin_user.id, }
+        admin_data = { 'user': self.user.id, }
+        user_data = { 'user': self.admin_user.id, }
         
         anonymus_client_response = self.anonymus_client.post(self.event_invitation_url, user_data)
         client_response = self.client.post(self.event_invitation_url, user_data)
         admin_response = self.admin_client.post(self.event_invitation_url, admin_data)
         
         self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(admin_response.data.get("event_id"), self.event1.id)
-        self.assertEqual(admin_response.data.get("user_id"), self.user.id)
+        self.assertEqual(admin_response.data.get("event"), self.event1.id)
+        self.assertEqual(admin_response.data.get("user"), self.user.id)
         self.assertEqual(admin_response.data.get("is_invitation_accepted"), False)
         
         self.assertEqual(client_response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(client_response.data.get("event_id"), self.event1.id)
-        self.assertEqual(client_response.data.get("user_id"), self.admin_user.id)
+        self.assertEqual(client_response.data.get("event"), self.event1.id)
+        self.assertEqual(client_response.data.get("user"), self.admin_user.id)
         self.assertEqual(client_response.data.get("is_invitation_accepted"), False)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -509,8 +509,8 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         
     def test_confrim_event_invitation_view(self):
         # Create invitations and confirmations
-        admin_data = { 'user_id': self.user.id, }
-        user_data = { 'user_id': self.admin_user.id, }
+        admin_data = { 'user': self.user.id, }
+        user_data = { 'user': self.admin_user.id, }
         
         self.client.post(self.event_invitation_url, user_data)
         self.admin_client.post(self.event_invitation_url, admin_data)
@@ -519,13 +519,13 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         admin_response = self.admin_client.post(self.event_confrim_invitation_url)
         
         self.assertEqual(client_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(client_response.data.get("event_id"), self.event1.id)
-        self.assertEqual(client_response.data.get("user_id"), self.user.id)
+        self.assertEqual(client_response.data.get("event"), self.event1.id)
+        self.assertEqual(client_response.data.get("user"), self.user.id)
         self.assertEqual(client_response.data.get("is_invitation_accepted"), True)
         
         self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(admin_response.data.get("event_id"), self.event1.id)
-        self.assertEqual(admin_response.data.get("user_id"), self.admin_user.id)
+        self.assertEqual(admin_response.data.get("event"), self.event1.id)
+        self.assertEqual(admin_response.data.get("user"), self.admin_user.id)
         self.assertEqual(admin_response.data.get("is_invitation_accepted"), True)
         
         # Test confrim an invitation twice
@@ -536,8 +536,8 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         self.assertEqual(client_response.status_code, status.HTTP_404_NOT_FOUND)
         
     def test_confrim_not_exsisting_event_invitation_view(self):
-        admin_data = { 'user_id': self.user.id, }
-        user_data = { 'user_id': self.admin_user.id, }
+        admin_data = { 'user': self.user.id, }
+        user_data = { 'user': self.admin_user.id, }
         
         # Test not exsisting objects
         client_response = self.client.post(self.not_exsisting_event_confrim_invitation_url, user_data)
@@ -550,8 +550,8 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         
     def test_delete_event_invitation_view(self):
         # Create invitations and confirmations
-        admin_data = { 'user_id': self.user.id, }
-        user_data = { 'user_id': self.admin_user.id, }
+        admin_data = { 'user': self.user.id, }
+        user_data = { 'user': self.admin_user.id, }
         
         self.client.post(self.event_invitation_url, user_data)
         self.admin_client.post(self.event_invitation_url, admin_data)

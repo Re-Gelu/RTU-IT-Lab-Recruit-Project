@@ -32,12 +32,12 @@ class EventsModelsTest(TestCase):
         )
         
         EventRegistrations.objects.create(
-            user_id=get_user_model().objects.create(
+            user=get_user_model().objects.create(
                 username='user@test.com',
                 email='user@test.com',
                 password='testpass123'
             ),
-            event_id=self.event
+            event=self.event
         )
         
         
@@ -172,59 +172,59 @@ class EventRegistrationsTest(TestCase):
         
     def test_event_registration_creation(self):
         event_registration = EventRegistrations.objects.create(
-            event_id=self.event,
-            user_id=self.user
+            event=self.event,
+            user=self.user
         )
         self.assertEqual(event_registration.__str__(), f"Запись на мероприятие №{event_registration.shortuuid}, ID мероприятия - {self.event}, ID пользователя - {self.user}")
-        self.assertEqual(event_registration.inviting_user_id, self.user)
+        self.assertEqual(event_registration.inviting_user, self.user)
         self.assertFalse(event_registration.is_invitation_accepted)
         
     def test_private_event_registration_creation(self):
         private_event_registration = PrivateEventRegistrations.objects.create(
-            event_id=self.private_event,
-            user_id=self.user
+            event=self.private_event,
+            user=self.user
         )
         self.assertEqual(private_event_registration.__str__(), f"Запись на приватное мероприятие №{private_event_registration.shortuuid}, ID мероприятия - {self.private_event}, ID пользователя - {self.user}")
-        self.assertEqual(private_event_registration.inviting_user_id, self.user)
+        self.assertEqual(private_event_registration.inviting_user, self.user)
         self.assertFalse(private_event_registration.is_invitation_accepted)
         
     def test_event_registration_unique_constraint(self):
         EventRegistrations.objects.create(
-            event_id=self.event,
-            user_id=self.user
+            event=self.event,
+            user=self.user
         )
         with self.assertRaises(Exception):
             EventRegistrations.objects.create(
-                event_id=self.event,
-                user_id=self.user
+                event=self.event,
+                user=self.user
             )
         
     def test_private_event_registration_unique_constraint(self):
         PrivateEventRegistrations.objects.create(
-            event_id=self.private_event,
-            user_id=self.user
+            event=self.private_event,
+            user=self.user
         )
         with self.assertRaises(Exception):
             PrivateEventRegistrations.objects.create(
-                event_id=self.private_event,
-                user_id=self.user
+                event=self.private_event,
+                user=self.user
             )
             
     def test_save_method(self):
-        # Создание записи без inviting_user_id
+        # Создание записи без inviting_user
         event_reg = EventRegistrations.objects.create(
-            event_id=self.event, user_id=self.user
+            event=self.event, user=self.user
         )
-        self.assertEqual(event_reg.inviting_user_id, self.user)
+        self.assertEqual(event_reg.inviting_user, self.user)
         
         event_reg.delete()
         
-        # Создание записи с inviting_user_id
+        # Создание записи с inviting_user
         inviting_user = get_user_model().objects.create_user(
             username='invitinguser',
             password='password'
         )
         event_reg = EventRegistrations.objects.create(
-            event_id=self.event, user_id=self.user, inviting_user_id=inviting_user
+            event=self.event, user=self.user, inviting_user=inviting_user
         )
-        self.assertEqual(event_reg.inviting_user_id, inviting_user)
+        self.assertEqual(event_reg.inviting_user, inviting_user)

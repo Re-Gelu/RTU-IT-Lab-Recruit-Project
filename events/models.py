@@ -161,7 +161,7 @@ class Events(AbstractEvents):
     
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="EventRegistrations",
-        through_fields=('event_id', 'user_id'),
+        through_fields=('event', 'user'),
         verbose_name="Зарегестрированные на мероприятие пользователи",
     )
     
@@ -184,7 +184,7 @@ class PrivateEvents(AbstractEvents):
     
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="PrivateEventRegistrations",
-        through_fields=('event_id', 'user_id'),
+        through_fields=('event', 'user'),
         verbose_name="Зарегестрированные на приватное мероприятие пользователи",
     )
     
@@ -217,7 +217,7 @@ class PaidEvents(AbstractEvents):
     
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="PaidEventRegistrations",
-        through_fields=('event_id', 'user_id'),
+        through_fields=('event', 'user'),
         verbose_name="Зарегестрированные на платное мероприятие пользователи",
     )
     
@@ -276,71 +276,71 @@ class AbstractEventRegistrations(models.Model):
 
 class EventRegistrations(AbstractEventRegistrations):
     
-    event_id = models.ForeignKey(
+    event = models.ForeignKey(
         Events, on_delete=models.CASCADE,
         verbose_name="ID мероприятия"
     )
     
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE,
         verbose_name="ID пользователя"
     )
     
-    inviting_user_id = models.ForeignKey(
+    inviting_user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE,
         blank=True, null=True, related_name='+',
         verbose_name="ID приглашающего пользователя"
     )
     
     def save(self, *args, **kwargs):
-        if not self.inviting_user_id:
-            self.inviting_user_id = self.user_id
+        if not self.inviting_user:
+            self.inviting_user = self.user
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID пользователя - {self.user_id}"
+        return f"Запись на мероприятие №{self.shortuuid}, ID мероприятия - {self.event}, ID пользователя - {self.user}"
     
     class Meta:
         verbose_name = 'регистрацию на мероприятие'
         verbose_name_plural = 'Регистрации на мероприятия'
-        unique_together = ('event_id', 'user_id')
+        unique_together = ('event', 'user')
         constraints = [
-            models.UniqueConstraint(fields=unique_together, name='event_user_id_unique'),
+            models.UniqueConstraint(fields=unique_together, name='event_user_unique'),
         ]
 
 
 class PrivateEventRegistrations(AbstractEventRegistrations):
     
-    event_id = models.ForeignKey(
+    event = models.ForeignKey(
         PrivateEvents, on_delete=models.CASCADE,
         verbose_name="ID приватного мероприятия"
     )
     
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE,
         verbose_name="ID пользователя"
     )
     
-    inviting_user_id = models.ForeignKey(
+    inviting_user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE,
         blank=True, null=True, related_name='+',
         verbose_name="ID приглашающего пользователя"
     )
     
     def save(self, *args, **kwargs):
-        if not self.inviting_user_id:
-            self.inviting_user_id = self.user_id
+        if not self.inviting_user:
+            self.inviting_user = self.user
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Запись на приватное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID пользователя - {self.user_id}"
+        return f"Запись на приватное мероприятие №{self.shortuuid}, ID мероприятия - {self.event}, ID пользователя - {self.user}"
     
     class Meta:
         verbose_name = 'регистрацию на приватное мероприятие'
         verbose_name_plural = 'Регистрации на приватные мероприятия'
-        unique_together = ('event_id', 'user_id')
+        unique_together = ('event', 'user')
         constraints = [
-            models.UniqueConstraint(fields=unique_together, name='private_event_user_id_unique'),
+            models.UniqueConstraint(fields=unique_together, name='private_event_user_unique'),
         ]
         
 
@@ -353,17 +353,17 @@ class PaidEventRegistrations(AbstractEventRegistrations):
         EXPIRED = "EXPIRED", "Время жизни счета истекло. Счет не оплачен."
         REJECTED = "REJECTED", "Платёж отклонен"
     
-    event_id = models.ForeignKey(
+    event = models.ForeignKey(
         PaidEvents, on_delete=models.CASCADE,
         verbose_name="ID платного мероприятия"
     )
     
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE,
         verbose_name="ID пользователя"
     )
     
-    inviting_user_id = models.ForeignKey(
+    inviting_user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE,
         blank=True, null=True, related_name='+',
         verbose_name="ID приглашающего пользователя"
@@ -382,17 +382,17 @@ class PaidEventRegistrations(AbstractEventRegistrations):
     )
     
     def save(self, *args, **kwargs):
-        if not self.inviting_user_id:
-            self.inviting_user_id = self.user_id
+        if not self.inviting_user:
+            self.inviting_user = self.user
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Запись на платное мероприятие №{self.shortuuid}, ID мероприятия - {self.event_id}, ID пользователя - {self.user_id}"
+        return f"Запись на платное мероприятие №{self.shortuuid}, ID мероприятия - {self.event}, ID пользователя - {self.user}"
     
     class Meta:
         verbose_name = 'регистрацию на платное мероприятие'
         verbose_name_plural = 'Регистрации на платные мероприятия'
-        unique_together = ('event_id', 'user_id')
+        unique_together = ('event', 'user')
         constraints = [
-            models.UniqueConstraint(fields=unique_together, name='paid_event_user_id_unique'),
+            models.UniqueConstraint(fields=unique_together, name='paid_event_user_unique'),
         ]

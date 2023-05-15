@@ -43,10 +43,10 @@ def send_registration_reminder():
     
     for days in notification_days_before_events:
         date_to_check = timezone.now() + timedelta(days=days)
-        registrations = EventRegistrations.objects.filter(event_id__start_datetime__date=date_to_check)
+        registrations = EventRegistrations.objects.filter(event__start_datetime__date=date_to_check)
         for registration in registrations:
-            user = registration.user_id
-            event = registration.event_id
+            user = registration.user
+            event = registration.event
             subject = f'Напоминание о регистрации на мероприятие - {event.name} c №{registration.shortuuid}'
             message = f"""
                 Здравствуйте! 

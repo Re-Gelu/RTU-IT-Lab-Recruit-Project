@@ -30,8 +30,8 @@ class RegistrationModelMixin:
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
         serializer = self.event_registration_serializer_class(data={
-            "event_id": pk, 
-            "user_id": current_user.id,
+            "event": pk, 
+            "user": current_user.id,
             "is_invitation_accepted": True,
         })
         serializer.is_valid(raise_exception=True)
@@ -43,7 +43,7 @@ class RegistrationModelMixin:
     def delete_registration(self, request, pk=None):
         """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
-        event_registration = get_object_or_404(self.event_registration_model, event_id=pk, user_id=current_user.id)
+        event_registration = get_object_or_404(self.event_registration_model, event=pk, user=current_user.id)
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -62,10 +62,10 @@ class InvitationModelMixin(RegistrationModelMixin):
         """ Отправить приглашение на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
         serializer = self.event_registration_serializer_class(data={
-            "event_id": pk,
-            "user_id": request.data.get("user_id"),
+            "event": pk,
+            "user": request.data.get("user"),
             "is_invitation_accepted": False,
-            "inviting_user_id": current_user.id
+            "inviting_user": current_user.id
         })
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -78,8 +78,8 @@ class InvitationModelMixin(RegistrationModelMixin):
         current_user = request.user
         event_registration = get_object_or_404(
             self.event_registration_model, 
-            event_id=pk, 
-            user_id=current_user.id,
+            event=pk, 
+            user=current_user.id,
             is_invitation_accepted=False,
         )
         event_registration.delete()
@@ -91,8 +91,8 @@ class InvitationModelMixin(RegistrationModelMixin):
         current_user = request.user
         instance = get_object_or_404(
             self.event_registration_model, 
-            event_id=pk, 
-            user_id=current_user.id,
+            event=pk, 
+            user=current_user.id,
             is_invitation_accepted=False,
         )
         serializer = self.event_registration_serializer_class(
@@ -130,7 +130,7 @@ class InvitationModelMixin(RegistrationModelMixin):
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, ])
     def guestlist(self, request, pk=None):
         """ Получить список пользователей, принявших приглашение на конкретное мероприятие """
-        self.queryset = self.event_registration_model.objects.filter(event_id=pk, is_invitation_accepted=True)
+        self.queryset = self.event_registration_model.objects.filter(event=pk, is_invitation_accepted=True)
         self.serializer_class = self.event_registration_serializer_class
         return self.list(self, request)
     
@@ -165,8 +165,8 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
         
         current_user = request.user
         serializer = self.event_registration_serializer_class(data={
-            "event_id": pk, 
-            "user_id": current_user.id,
+            "event": pk, 
+            "user": current_user.id,
             "is_invitation_accepted": False,
         })
         serializer.is_valid(raise_exception=True)

@@ -45,7 +45,7 @@ class EventRegistrationsSerializer(serializers.ModelSerializer):
         
         
     def validate(self, attrs):
-        event = attrs.get("event_id")
+        event = attrs.get("event")
         if event and event.closing_registration_date and event.closing_registration_date <= timezone.now():
             raise serializers.ValidationError({"closing_registration_date": "Нельзя зарегестрироваться после указанного времени закрытия регистрации"})
         return attrs
@@ -69,7 +69,7 @@ class PaidEventRegistrationsSerializer(EventRegistrationsSerializer):
 class EventInvitationsSerializer(EventRegistrationsSerializer):
     class Meta:
             model = EventRegistrations
-            fields = ('user_id', )
+            fields = ('user', )
             extra_kwargs = {'invitation_code': {'read_only': False}}
             
 
