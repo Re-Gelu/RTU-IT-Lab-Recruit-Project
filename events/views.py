@@ -32,12 +32,21 @@ class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
     serializer_class = EventsSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
     
+    filterset_fields = {
+        'name': ['iexact', 'icontains'],
+        'venue': ['exact'],
+        'category': ['exact'],
+        'start_datetime': ['gte', 'lte'],
+        'duration': ['gte', 'lte'],
+        'closing_registration_date': ['gte', 'lte'],
+    }
+    
     event_registration_serializer_class = EventRegistrationsSerializer
     event_registration_model = EventRegistrations
     
 
 @method_decorator(default_decorators, name="dispatch")
-class PrivateEventsViewSet(viewsets.ModelViewSet, PrivateInvitationModelMixin):
+class PrivateEventsViewSet(EventsViewSet, PrivateInvitationModelMixin):
     queryset = PrivateEvents.objects.all()
     serializer_class = PrivateEventsSerializer
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
@@ -47,10 +56,12 @@ class PrivateEventsViewSet(viewsets.ModelViewSet, PrivateInvitationModelMixin):
 
 
 @method_decorator(default_decorators, name="dispatch")
-class PaidEventsViewSet(viewsets.ModelViewSet, PaymentRegistrationModelMixin):
+class PaidEventsViewSet(PrivateEventsViewSet, PaymentRegistrationModelMixin):
     queryset = PaidEvents.objects.all()
     serializer_class = PaidEventsSerializer
-    permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
+    
+    filterset_fields = PrivateEventsViewSet.filterset_fields.copy()
+    filterset_fields['price'] = ['exact', 'gt', 'lt']
     
     event_registration_serializer_class = PaidEventRegistrationsSerializer
     event_registration_model = PaidEventRegistrations
@@ -61,6 +72,13 @@ class EventVenuesViewSet(viewsets.ModelViewSet):
     queryset = EventVenues.objects.all()
     serializer_class = EventVenuesSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
+    
+    filterset_fields = {
+        'name': ['iexact', 'icontains'],
+        'address': ['iexact', 'icontains'],
+        'latitude': ['gte', 'lte'],
+        'longitude': ['gte', 'lte'],
+    }
 
 
 @method_decorator(default_decorators, name="dispatch")
@@ -68,6 +86,10 @@ class EventTypesViewSet(viewsets.ModelViewSet):
     queryset = EventTypes.objects.all()
     serializer_class = EventTypesSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
+    
+    filterset_fields = {
+        'name': ['iexact', 'icontains'],
+    }
     
     
 class EventsRegistrationsViewSet(viewsets.ModelViewSet):
