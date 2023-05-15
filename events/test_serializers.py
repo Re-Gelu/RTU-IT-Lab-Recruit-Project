@@ -56,8 +56,8 @@ class EventsSerializerTest(TestCase):
         self.event_data = {
             'name': 'Event 1',
             'start_datetime': timezone.now(),
-            'category_id': 1,
-            'venue_id': 1
+            'category': 1,
+            'venue': 1
         }
     
     def test_create_event(self):
@@ -65,7 +65,7 @@ class EventsSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
         event = serializer.save()
         self.assertEqual(event.name, self.event_data['name'])
-        self.assertEqual(event.category_id, self.event_data['category_id'])
+        self.assertEqual(event.category, self.event_data['category'])
         
     def test_update_event(self):
         event = Events.objects.create(**self.event_data)
@@ -73,14 +73,14 @@ class EventsSerializerTest(TestCase):
             'name': 'Updated event name',
             'start_date': timezone.now(),
             'end_date': timezone.now(),
-            'category_id': 2,
-            'venue_id': 2
+            'category': 2,
+            'venue': 2
         }
         serializer = EventsSerializer(event, data=event_data_updated)
         self.assertTrue(serializer.is_valid())
         updated_event = serializer.save()
         self.assertEqual(updated_event.name, event_data_updated['name'])
-        self.assertEqual(updated_event.category_id, event_data_updated['category_id'])
+        self.assertEqual(updated_event.category, event_data_updated['category'])
         
 
 class EventRegistrationsSerializerTest(TestCase):
@@ -91,8 +91,8 @@ class EventRegistrationsSerializerTest(TestCase):
             name='Test event',
             start_date=timezone.now(),
             end_date=timezone.now(),
-            category_id=1,
-            venue_id=1
+            category=1,
+            venue=1
         )
         self.event_registration_data = {
             'user': self.user.id,
@@ -124,8 +124,8 @@ class EventRegistrationsSerializerTest(TestCase):
             name='Test event with closing date',
             start_date=timezone.now(),
             end_date=timezone.now(),
-            category_id=1,
-            venue_id=1,
+            category=1,
+            venue=1,
             closing_registration_date=timezone.now() - timezone.timedelta(hours=1)
         )
         event_registration_data = {

@@ -47,7 +47,6 @@ class EventVenues(models.Model):
         super().save(*args, **kwargs)
     
     class Meta:
-        ordering = ('name',)
         verbose_name = 'место проведения мероприятия'
         verbose_name_plural = 'Места проведения мероприятий'
         
@@ -73,7 +72,6 @@ class EventTypes(models.Model):
         super().save(*args, **kwargs)
     
     class Meta:
-        ordering = ('name',)
         verbose_name = 'тип мероприятия'
         verbose_name_plural = 'Типы мероприятий'        
         
@@ -149,12 +147,12 @@ class AbstractEvents(models.Model):
         
         
 class Events(AbstractEvents):
-    venue_id = models.ForeignKey(
+    venue = models.ForeignKey(
         EventVenues, on_delete=models.PROTECT, blank=True, null=True,
         verbose_name="Место проведения мероприятия"
     )
     
-    category_id = models.ForeignKey(
+    category = models.ForeignKey(
         EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name="Тип мероприятия"
     )
@@ -166,18 +164,17 @@ class Events(AbstractEvents):
     )
     
     class Meta:
-        ordering = ('name',)
         verbose_name = 'мероприятие'
         verbose_name_plural = 'Мероприятия'
         
 
 class PrivateEvents(AbstractEvents):
-    venue_id = models.ForeignKey(
+    venue = models.ForeignKey(
         EventVenues, on_delete=models.PROTECT, blank=True, null=True,
         verbose_name="Место проведения приватного мероприятия"
     )
     
-    category_id = models.ForeignKey(
+    category = models.ForeignKey(
         EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name="Тип приватного мероприятия"
     )
@@ -198,19 +195,18 @@ class PrivateEvents(AbstractEvents):
     )
     
     class Meta:
-        ordering = ('name',)
         verbose_name = 'приватное мероприятие'
         verbose_name_plural = 'Приватные мероприятия'
         
 
 class PaidEvents(AbstractEvents):
         
-    venue_id = models.ForeignKey(
+    venue = models.ForeignKey(
         EventVenues, on_delete=models.PROTECT, blank=True, null=True,
         verbose_name="Место проведения платного мероприятия"
     )
     
-    category_id = models.ForeignKey(
+    category = models.ForeignKey(
         EventTypes, on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name="Тип платного мероприятия"
     )
@@ -236,7 +232,6 @@ class PaidEvents(AbstractEvents):
     )
     
     class Meta:
-        ordering = ('name',)
         verbose_name = 'платное мероприятие'
         verbose_name_plural = 'Платные мероприятия'
 

@@ -18,16 +18,16 @@ class EventsModelsTest(TestCase):
             name='Test Event',
             start_datetime=timezone.now() + timedelta(days=1),
             closing_registration_date=timezone.now() + timedelta(hours=12),
-            venue_id=venue,
-            category_id=event_type,
+            venue=venue,
+            category=event_type,
             max_visitors=10,
         )
         self.private_event = Events.objects.create(
             name='Test private Event',
             start_datetime=timezone.now() + timedelta(days=1),
             closing_registration_date=timezone.now() + timedelta(hours=12),
-            venue_id=venue,
-            category_id=event_type,
+            venue=venue,
+            category=event_type,
             max_visitors=10,
         )
         
