@@ -40,17 +40,17 @@ class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
         'duration': ['gte', 'lte'],
         'closing_registration_date': ['gte', 'lte'],
     }
-    
+
     event_registration_serializer_class = EventRegistrationsSerializer
     event_registration_model = EventRegistrations
-    
+
 
 @method_decorator(default_decorators, name="dispatch")
 class PrivateEventsViewSet(EventsViewSet, PrivateInvitationModelMixin):
     queryset = PrivateEvents.objects.all()
     serializer_class = PrivateEventsSerializer
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
-    
+
     event_registration_serializer_class = PrivateEventRegistrationsSerializer
     event_registration_model = PrivateEventRegistrations
 
@@ -59,20 +59,20 @@ class PrivateEventsViewSet(EventsViewSet, PrivateInvitationModelMixin):
 class PaidEventsViewSet(PrivateEventsViewSet, PaymentRegistrationModelMixin):
     queryset = PaidEvents.objects.all()
     serializer_class = PaidEventsSerializer
-    
+
     filterset_fields = PrivateEventsViewSet.filterset_fields.copy()
-    filterset_fields['price'] = ['exact', 'gt', 'lt']
-    
+    filterset_fields.update({'price': ['exact', 'gte', 'lte']})
+
     event_registration_serializer_class = PaidEventRegistrationsSerializer
     event_registration_model = PaidEventRegistrations
-    
+
 
 @method_decorator(default_decorators, name="dispatch")
 class EventVenuesViewSet(viewsets.ModelViewSet):
     queryset = EventVenues.objects.all()
     serializer_class = EventVenuesSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
-    
+
     filterset_fields = {
         'name': ['iexact', 'icontains'],
         'address': ['iexact', 'icontains'],
@@ -86,17 +86,17 @@ class EventTypesViewSet(viewsets.ModelViewSet):
     queryset = EventTypes.objects.all()
     serializer_class = EventTypesSerializer
     permission_classes = [ReadOnly | IsAdminUser, ]
-    
+
     filterset_fields = {
         'name': ['iexact', 'icontains'],
     }
-    
-    
+
+
 class EventsRegistrationsViewSet(viewsets.ModelViewSet):
     queryset = EventRegistrations.objects.all()
     serializer_class = EventRegistrationsSerializer
     permission_classes = [ReadOnly | IsAuthenticated, ]
-    
+
 
 class PrivateEventsRegistrationsViewSet(viewsets.ModelViewSet):
     queryset = PrivateEventRegistrations.objects.all()

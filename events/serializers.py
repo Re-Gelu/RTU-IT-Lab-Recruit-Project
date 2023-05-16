@@ -8,28 +8,37 @@ from .models import (EventRegistrations, Events, EventTypes, EventVenues,
 # Serializers
 
 class EventsSerializer(serializers.ModelSerializer):
+    visitors = serializers.SerializerMethodField()
+
     class Meta:
         model = Events
         fields = '__all__'
-        
-        
+
+    def get_visitors(self, obj):
+        queryset = self.Meta.model.objects.filter(
+            eventregistrations__is_invitation_accepted=True
+        )
+        serializer = EventRegistrationsSerializer(queryset, many=True)
+        return serializer.data
+
+
 class PrivateEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateEvents
         exclude = ('invitation_code', )
-        
-        
+
+
 class PaidEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaidEvents
         exclude = ('invitation_code', )
-        
-        
+
+
 class EventVenuesSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventVenues
         fields = '__all__'
-        
+
 
 class EventTypesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,14 +51,14 @@ class EventRegistrationsSerializer(serializers.ModelSerializer):
         model = EventRegistrations
         fields = '__all__'
         read_only_fields = ('shortuuid', )
-        
-        
+
+
     def validate(self, attrs):
         event = attrs.get("event")
         if event and event.closing_registration_date and event.closing_registration_date <= timezone.now():
             raise serializers.ValidationError({"closing_registration_date": "Нельзя зарегестрироваться после указанного времени закрытия регистрации"})
         return attrs
-    
+
 
 class PrivateEventRegistrationsSerializer(EventRegistrationsSerializer):
     class Meta:
@@ -68,19 +77,19 @@ class PaidEventRegistrationsSerializer(EventRegistrationsSerializer):
 
 class EventInvitationsSerializer(EventRegistrationsSerializer):
     class Meta:
-            model = EventRegistrations
-            fields = ('user', )
-            extra_kwargs = {'invitation_code': {'read_only': False}}
-            
+        model = EventRegistrations
+        fields = ('user', )
+        extra_kwargs = {'invitation_code': {'read_only': False}}
+
 
 class PrivateEventsCodeInvitationsSerializer(serializers.Serializer):
     invitation_code = serializers.CharField(label='UUID для приглашения на мероприятие', max_length=10, required=True)
-            
+
     def validate_invitation_code(self, value):
         pk = self.context.get("pk")
         event = PrivateEvents.objects.filter(pk=pk).first()
-        
+
         if pk and event and not event.invitation_code == value:
             raise serializers.ValidationError("Неправильный код приглашения")
-            
+
         return value

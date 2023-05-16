@@ -296,8 +296,7 @@ CACHES = {
     }
 }
 
-CACHING_TIME = 60 * 5
-
+CACHING_TIME = 1 # 60
 
 # 'Extra settings' settings
 
