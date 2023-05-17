@@ -7,44 +7,8 @@ from .models import (EventRegistrations, Events, EventTypes, EventVenues,
 
 # Serializers
 
-class EventsSerializer(serializers.ModelSerializer):
-    visitors = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Events
-        fields = '__all__'
-
-    def get_visitors(self, obj):
-        queryset = self.Meta.model.objects.filter(
-            eventregistrations__is_invitation_accepted=True
-        )
-        serializer = EventRegistrationsSerializer(queryset, many=True)
-        return serializer.data
-
-
-class PrivateEventsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PrivateEvents
-        exclude = ('invitation_code', )
-
-
-class PaidEventsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PaidEvents
-        exclude = ('invitation_code', )
-
-
-class EventVenuesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventVenues
-        fields = '__all__'
-
-
-class EventTypesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventTypes
-        fields = '__all__'
-
+# Event Registrations serializers
 
 class EventRegistrationsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,3 +57,70 @@ class PrivateEventsCodeInvitationsSerializer(serializers.Serializer):
             raise serializers.ValidationError("Неправильный код приглашения")
 
         return value
+
+
+# Events serializers
+
+class EventsSerializer(serializers.ModelSerializer):
+    visitors = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Events
+        fields = '__all__'
+        depth = 1
+
+    def get_visitors(self, obj):
+        queryset = EventRegistrations.objects.filter(
+            is_invitation_accepted=True,
+            event=obj.id
+        ).order_by('-id')
+        serializer = EventRegistrationsSerializer(queryset, many=True)
+        return serializer.data
+
+
+class PrivateEventsSerializer(serializers.ModelSerializer):
+    visitors = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PrivateEvents
+        exclude = ('invitation_code', )
+        
+    def get_visitors(self, obj):
+        queryset = PrivateEventRegistrations.objects.filter(
+            is_invitation_accepted=True,
+            event=obj.id
+        ).order_by('-id')
+        serializer = PrivateEventRegistrationsSerializer(queryset, many=True)
+        return serializer.data
+
+
+class PaidEventsSerializer(serializers.ModelSerializer):
+    visitors = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PaidEvents
+        exclude = ('invitation_code', )
+        
+    def get_visitors(self, obj):
+        queryset = PaidEventRegistrations.objects.filter(
+            is_invitation_accepted=True,
+            event=obj.id,
+            payment_status=PaidEventRegistrations.PaymentStatuses.PAID
+        ).order_by('-id')
+        serializer = PaidEventRegistrationsSerializer(queryset, many=True)
+        return serializer.data
+
+
+# Other events serializers
+
+class EventVenuesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventVenues
+        fields = '__all__'
+
+
+class EventTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventTypes
+        fields = '__all__'
+        
