@@ -1,137 +1,276 @@
 import datetime
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
-from .models import Events
-from .serializers import EventsSerializer
+from .models import (EventRegistrations, Events, PaidEventRegistrations,
+                     PaidEvents, PrivateEventRegistrations, PrivateEvents)
+from .serializers import (EventsSerializer, PrivateEventsSerializer, PaidEventsSerializer, 
+                          EventRegistrationsSerializer, PaidEventRegistrationsSerializer, 
+                          EventInvitationsSerializer, PrivateEventsCodeInvitationsSerializer, 
+                          PrivateEventRegistrationsSerializer)
 
-events_serializer = EventsSerializer
-
-class EventsSerializerTestCase(TestCase):
+class EventsSerializerTest(TestCase):
     def setUp(self):
-        self.events_serializer = events_serializer
         self.event =  Events.objects.create(
             name='Test event',
             start_datetime=timezone.now() + timedelta(days=1),
             closing_registration_date=timezone.now() + timedelta(hours=1)
         )
-
-    def test_event_serializer(self):
-        serializer = EventsSerializer(self.event)
-        data = serializer.data
-        self.assertEqual(data['name'], self.event.name)
-        self.assertEqual(datetime.datetime.fromisoformat(data['start_datetime']), timezone.localtime(self.event.start_datetime))
-        self.assertEqual(datetime.datetime.fromisoformat(data['closing_registration_date']), timezone.localtime(self.event.closing_registration_date))
-
-
-""" from django.test import TestCase
-from django.utils import timezone
-from datetime import timedelta
-from django.contrib.auth import get_user_model
-from .serializers import (
-    EventsSerializer, 
-    PrivateEventsSerializer, 
-    EventVenuesSerializer, 
-    EventTypesSerializer, 
-    EventRegistrationsSerializer, 
-    PrivateEventRegistrationsSerializer,
-    EventInvitationsSerializer,
-)
-from .models import (
-    Events,
-    PrivateEvents,
-    EventVenues,
-    EventTypes,
-    EventRegistrations,
-    PrivateEventRegistrations,
-)
-import datetime
-
-
-class EventsSerializerTest(TestCase):
-
-    def setUp(self):
-        self.event_data = {
-            'name': 'Event 1',
-            'start_datetime': timezone.now(),
-            'category': 1,
-            'venue': 1
-        }
-    
-    def test_create_event(self):
-        serializer = EventsSerializer(data=self.event_data)
-        self.assertTrue(serializer.is_valid())
-        event = serializer.save()
-        self.assertEqual(event.name, self.event_data['name'])
-        self.assertEqual(event.category, self.event_data['category'])
+        self.user1 = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.user2 = get_user_model().objects.create(
+            username='user2@test.com',
+            email='user2@test.com',
+            password='testpass123'
+        )
+        self.user3 = get_user_model().objects.create(
+            username='user3@test.com',
+            email='user3@test.com',
+            password='testpass123'
+        )
         
-    def test_update_event(self):
-        event = Events.objects.create(**self.event_data)
-        event_data_updated = {
-            'name': 'Updated event name',
-            'start_date': timezone.now(),
-            'end_date': timezone.now(),
-            'category': 2,
-            'venue': 2
-        }
-        serializer = EventsSerializer(event, data=event_data_updated)
-        self.assertTrue(serializer.is_valid())
-        updated_event = serializer.save()
-        self.assertEqual(updated_event.name, event_data_updated['name'])
-        self.assertEqual(updated_event.category, event_data_updated['category'])
+    def test_get_visitors(self):
+        EventRegistrations.objects.create(
+            event=self.event,
+            user=self.user1,
+            is_invitation_accepted=True
+        )
+        EventRegistrations.objects.create(
+            event=self.event,
+            user=self.user2,
+            is_invitation_accepted=True
+        )
+        EventRegistrations.objects.create(
+            event=self.event,
+            user=self.user3,
+            is_invitation_accepted=False
+        )
+        serializer = EventsSerializer(self.event)
+        self.assertEqual(len(serializer.data['visitors']), 2)
+
+class PrivateEventsSerializerTest(TestCase):
+    def setUp(self):
+        self.event =  PrivateEvents.objects.create(
+            name='Test event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        self.user1 = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.user2 = get_user_model().objects.create(
+            username='user2@test.com',
+            email='user2@test.com',
+            password='testpass123'
+        )
+        self.user3 = get_user_model().objects.create(
+            username='user3@test.com',
+            email='user3@test.com',
+            password='testpass123'
+        )
+        
+    def test_get_visitors(self):
+        PrivateEventRegistrations.objects.create(
+            event=self.event,
+            user=self.user1,
+            is_invitation_accepted=True
+        )
+        PrivateEventRegistrations.objects.create(
+            event=self.event, 
+            user=self.user2,
+            is_invitation_accepted=True
+        )
+        PrivateEventRegistrations.objects.create(
+            event=self.event,
+            user=self.user3, 
+            is_invitation_accepted=False
+        )
+        serializer = PrivateEventsSerializer(self.event)
+        self.assertEqual(len(serializer.data['visitors']), 2)
+
+class PaidEventsSerializerTest(TestCase):
+    def setUp(self):
+        self.event =  PaidEvents.objects.create(
+            name='Test event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        self.user1 = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.user2 = get_user_model().objects.create(
+            username='user2@test.com',
+            email='user2@test.com',
+            password='testpass123'
+        )
+        self.user3 = get_user_model().objects.create(
+            username='user3@test.com',
+            email='user3@test.com',
+            password='testpass123'
+        )
+        
+    def test_get_visitors(self):
+        PaidEventRegistrations.objects.create(
+            event=self.event,
+            user=self.user1,
+            is_invitation_accepted=True,
+            payment_status='PAID'
+        )
+        PaidEventRegistrations.objects.create(
+            event=self.event, 
+            user=self.user2,
+            is_invitation_accepted=True,
+            payment_status='PAID'
+        )
+        PaidEventRegistrations.objects.create(
+            event=self.event, 
+            user=self.user3,
+            is_invitation_accepted=True
+        )
+        serializer = PaidEventsSerializer(self.event)
+        self.assertEqual(len(serializer.data['visitors']), 2)
         
 
 class EventRegistrationsSerializerTest(TestCase):
-    
-    def setUp(self):
-        self.user = get_user_model().objects.create(username='test_user')
-        self.event = Events.objects.create(
-            name='Test event',
-            start_date=timezone.now(),
-            end_date=timezone.now(),
-            category=1,
-            venue=1
+    def setUp(self):  
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
         )
-        self.event_registration_data = {
-            'user': self.user.id,
-            'event': self.event.id
-        }
-    
-    def test_create_event_registration(self):
-        serializer = EventRegistrationsSerializer(data=self.event_registration_data)
-        self.assertTrue(serializer.is_valid())
-        event_registration = serializer.save()
-        self.assertEqual(event_registration.user, self.user)
-        self.assertEqual(event_registration.event, self.event)
         
-    def test_update_event_registration(self):
-        event_registration = EventRegistrations.objects.create(
-            user=self.user,
-            event=self.event
+    def test_validate_closing_registration_date(self):
+        event = Events.objects.create(
+            name='Test Event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() - timezone.timedelta(days=1)
         )
-        event_registration_data_updated = {
-            'is_invitation_accepted': True
+        data = {
+            'event': event.pk,
+            'user': self.user.pk
         }
-        serializer = EventRegistrationsSerializer(event_registration, data=event_registration_data_updated)
-        self.assertTrue(serializer.is_valid())
-        updated_event_registration = serializer.save()
-        self.assertEqual(updated_event_registration.is_invitation_accepted, event_registration_data_updated['is_invitation_accepted'])
-        
-    def test_event_registration_validation(self):
-        event_with_closing_date = Events.objects.create(
-            name='Test event with closing date',
-            start_date=timezone.now(),
-            end_date=timezone.now(),
-            category=1,
-            venue=1,
-            closing_registration_date=timezone.now() - timezone.timedelta(hours=1)
-        )
-        event_registration_data = {
-            'user': self.user.id,
-            'event': event_with_closing_date.id
-        }
-        serializer = EventRegistrationsSerializer(data=event_registration_data)
+        serializer = EventRegistrationsSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn('closing_registration_date', serializer.errors) """
+        self.assertIn('closing_registration_date', serializer.errors)
+
+    def test_valid_data(self):
+        event = Events.objects.create(
+            name='Test Event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        data = {
+            'event': event.pk,
+            'user': self.user.pk
+        }
+        serializer = EventRegistrationsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+
+class PrivateEventRegistrationsSerializerTest(TestCase):
+    def setUp(self):  
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.event = PrivateEvents.objects.create(
+            name='Test event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        
+    def test_valid_data(self):
+        data = {
+            'event': self.event.id,
+            'user': self.user.id
+        }
+        serializer = PrivateEventRegistrationsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+
+class PaidEventRegistrationsSerializerTest(TestCase):
+    def setUp(self):  
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.event = PaidEvents.objects.create(
+            name='Test Event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        
+    def test_valid_data(self):
+        data = {
+            'event': self.event.id,
+            'user': self.user.id,
+            'payment_status': 'PAID',
+            'payment_link': 'http://example.com/payment'
+        }
+        serializer = PaidEventRegistrationsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        
+
+class EventInvitationsSerializerTest(TestCase):
+    def setUp(self):  
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.event = Events.objects.create(
+            name='Test Event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        
+    def test_valid_data(self):
+        data = {
+            'event': self.event.id,
+            'user': self.user.id
+        }
+        serializer = EventInvitationsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        
+
+class PrivateEventsCodeInvitationsSerializerTest(TestCase):
+    def setUp(self):  
+        self.user = get_user_model().objects.create(
+            username='user@test.com',
+            email='user@test.com',
+            password='testpass123'
+        )
+        self.event = PrivateEvents.objects.create(
+            name='Test Event',
+            start_datetime=timezone.now() + timedelta(days=1),
+            closing_registration_date=timezone.now() + timedelta(hours=1)
+        )
+        
+    def test_valid_invitation_code(self):
+        data = {
+            'invitation_code': self.event.invitation_code
+        }
+        context = {'pk': self.event.pk}
+        serializer = PrivateEventsCodeInvitationsSerializer(data=data, context=context)
+        self.assertTrue(serializer.is_valid())
+
+    def test_invalid_invitation_code(self):
+        data = {
+            'invitation_code': '123456'
+        }
+        context = {'pk': self.event.pk}
+        serializer = PrivateEventsCodeInvitationsSerializer(data=data, context=context)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('invitation_code', serializer.errors)

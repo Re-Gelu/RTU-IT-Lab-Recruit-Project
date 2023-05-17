@@ -37,7 +37,8 @@ class EventsModelsTest(TestCase):
                 email='user@test.com',
                 password='testpass123'
             ),
-            event=self.event
+            event=self.event,
+            is_invitation_accepted = True
         )
         
         
