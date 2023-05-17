@@ -172,6 +172,7 @@ class Events(AbstractEvents):
         ).count()
 
     class Meta:
+        ordering = ('-id', )
         verbose_name = 'мероприятие'
         verbose_name_plural = 'Мероприятия'
 
@@ -209,6 +210,7 @@ class PrivateEvents(AbstractEvents):
         ).count()
 
     class Meta:
+        ordering = ('-id', )
         verbose_name = 'приватное мероприятие'
         verbose_name_plural = 'Приватные мероприятия'
 
@@ -228,7 +230,8 @@ class PaidEvents(AbstractEvents):
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="PaidEventRegistrations",
         through_fields=('event', 'user'),
-        limit_choices_to={'paideventregistrations__is_invitation_accepted': True},
+        limit_choices_to={'paideventregistrations__is_invitation_accepted': True,
+                          'paideventregistrations__payment_status': 'PAID'},
         verbose_name="Зарегестрированные на платное мероприятие пользователи",
     )
 
@@ -248,10 +251,12 @@ class PaidEvents(AbstractEvents):
 
     def visitors_len(self):
         return self.visitors.filter(
-            paideventregistrations__is_invitation_accepted=True
+            paideventregistrations__is_invitation_accepted=True,
+            paideventregistrations__payment_status='PAID'
         ).count()
 
     class Meta:
+        ordering = ('-id', )
         verbose_name = 'платное мероприятие'
         verbose_name_plural = 'Платные мероприятия'
 
