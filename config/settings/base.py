@@ -10,14 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-import os
-import sys
 from pathlib import Path
 
 from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -48,7 +46,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_celery_results',
     'django_celery_beat',
-    'debug_toolbar',
     'django_filters',
     
     'django.contrib.admin',
@@ -58,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'events',
+    'login',
     
     'djoser',
     'baton.autodiscover',
@@ -71,8 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
     'watson.middleware.SearchContextMiddleware',
 ]
 
@@ -174,7 +171,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
@@ -296,7 +292,7 @@ CACHES = {
     }
 }
 
-CACHING_TIME = 1 # 60
+CACHING_TIME = 120
 
 # 'Extra settings' settings
 
@@ -380,60 +376,3 @@ EMAIL_PORT = '8025'
 EMAIL_HOST_USER = 'from@example.com'
 
 EMAIL_HOST_PASSWORD = None
-
-
-# Tests fix
-
-if 'test' in sys.argv: 
-    
-    EXTRA_SETTINGS_CACHE_NAME = 'default'
-
-    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
-    
-    EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-    
-    CELERY_BROKER_URL = 'memory://'
-    
-    RESULT_BACKEND = 'db+sqlite:///results.sqlite'
-    
-    CELERY_TASK_ALWAYS_EAGER = True
-    
-    CELERY_TASK_EAGER_PROPAGATES = True
-    
-
-# Prod settings
-
-if os.environ.get("DEBUG") == '0':
-    
-    DEBUG = int(os.environ.get("DEBUG"))
-    
-    ALLOWED_HOSTS = str(os.environ.get("DJANGO_ALLOWED_HOSTS")).split(" ")
-    
-    CSRF_TRUSTED_ORIGINS = str(os.environ.get("CSRF_TRUSTED_ORIGINS")).split(" ")
-    
-    INTERNAL_IPS = str(os.environ.get("INTERNAL_IPS")).split(" ")
-    
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    
-    REDIS_URL = os.environ.get("REDIS_URL")
-    
-    QIWI_PRIVATE_KEY = os.environ.get("QIWI_PRIVATE_KEY")
-    
-    DATABASES = {
-        "default": {
-            "ENGINE": os.environ.get("SQL_ENGINE"),
-            "NAME": os.environ.get("SQL_DATABASE"),
-            "USER": os.environ.get("SQL_USER"),
-            "PASSWORD": os.environ.get("SQL_PASSWORD"),
-            "HOST": os.environ.get("SQL_HOST"),
-            "PORT": os.environ.get("SQL_PORT"),
-        }
-    }
-    
-    EMAIL_HOST = os.environ.get("EMAIL_HOST")
-
-    EMAIL_PORT = os.environ.get("EMAIL_PORT")
-
-    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-
-    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
