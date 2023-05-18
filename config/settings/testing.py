@@ -1,4 +1,4 @@
-from .base import *
+from .development import *
 
 EXTRA_SETTINGS_CACHE_NAME = 'default'
 
