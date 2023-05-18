@@ -98,4 +98,4 @@ EMAIL_HOST_USER = 'from@example.com'
 
 EMAIL_HOST_PASSWORD = None
 
-EMAIL_USE_TLS = 1
+EMAIL_USE_TLS = True

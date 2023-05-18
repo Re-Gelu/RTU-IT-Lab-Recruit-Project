@@ -55,9 +55,10 @@ class InvitationModelMixin(RegistrationModelMixin):
     1) event_registration_model
     2) event_registration_serializer_class """
     
+    invitation_permission_classes=[IsAuthenticated, ]
     permission_classes=[IsAuthenticated, ]
     
-    @action(detail=True, methods=['post'], serializer_class=EventInvitationsSerializer, permission_classes=permission_classes)
+    @action(detail=True, methods=['post'], serializer_class=EventInvitationsSerializer, permission_classes=invitation_permission_classes)
     def invitation(self, request, pk=None):
         """ Отправить приглашение на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -79,13 +80,13 @@ class InvitationModelMixin(RegistrationModelMixin):
         event_registration = get_object_or_404(
             self.event_registration_model, 
             event=pk, 
-            user=current_user.id,
+            inviting_user=current_user.id,
             is_invitation_accepted=False,
         )
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=[IsAuthenticated, ])
+    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=permission_classes)
     def confrim_invitation(self, request, pk=None):
         """ Принять приглашение на конкретное мероприятие пользователю или группе пользователей """
         current_user = request.user
@@ -104,14 +105,14 @@ class InvitationModelMixin(RegistrationModelMixin):
         self.perform_update(serializer)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['get'], permission_classes=[IsAdminUser, ])
+    @action(detail=True, methods=['get'], permission_classes=invitation_permission_classes)
     def invitation_code(self, request, pk=None):
         """ Получить код для приглашения на конкретное мероприятие пользователя или группы пользователей 
         (Только для администрации) """
         instance = self.get_object()
         return Response({'invitation_code': instance.invitation_code})
     
-    @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=[IsAuthenticated, ])
+    @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=permission_classes)
     def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей 
         при помощи кода приглашения"""
@@ -127,13 +128,6 @@ class InvitationModelMixin(RegistrationModelMixin):
         """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
         return super().delete_registration(request, pk)
     
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, ])
-    def guestlist(self, request, pk=None):
-        """ Получить список пользователей, принявших приглашение на конкретное мероприятие """
-        self.queryset = self.event_registration_model.objects.filter(event=pk, is_invitation_accepted=True)
-        self.serializer_class = self.event_registration_serializer_class
-        return self.list(self, request)
-    
 
 class PrivateInvitationModelMixin(InvitationModelMixin):
     """ Adds private event invitation functionality.
@@ -142,9 +136,21 @@ class PrivateInvitationModelMixin(InvitationModelMixin):
     1) event_registration_model
     2) event_registration_serializer_class """
     
-    permission_classes=[IsAdminUser, ]
+    invitation_permission_classes=[IsAdminUser, ]
+    permission_classes=[IsAuthenticated, ]
     
-
+    @action(detail=True, methods=['post'], serializer_class=EventInvitationsSerializer, permission_classes=invitation_permission_classes)
+    def invitation(self, request, pk=None):
+        return super().invitation(request, pk)
+        
+    @invitation.mapping.delete
+    def delete_invitation(self, request, pk=None):
+        return super().delete_invitation(request, pk)
+        
+    @action(detail=True, methods=['get'], permission_classes=invitation_permission_classes)
+    def invitation_code(self, request, pk=None):
+        return super().invitation_code(request, pk)
+    
 class PaymentRegistrationModelMixin(RegistrationModelMixin):
     """ Adds paid event registration functionality.
         
@@ -154,7 +160,7 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
     
     permission_classes=[IsAuthenticated, ]
     
-    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=[IsAuthenticated, ])
+    @action(detail=True, methods=['post'], serializer_class=Serializer, permission_classes=permission_classes)
     def registration(self, request, pk=None):
 
         p2p = get_QIWI_p2p()
