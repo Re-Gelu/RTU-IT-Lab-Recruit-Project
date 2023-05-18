@@ -18,4 +18,4 @@ jobs:
     - uses: isbang/compose-action@v1.4.1
       with:
         compose-file: "./docker-compose.yml"
-    - run: docker-compose -f docker-compose.yml exec backend python manage.py test --settings config.settings.production
+    - run: docker-compose -f docker-compose.yml exec backend python manage.py test --settings config.settings.production_testing
