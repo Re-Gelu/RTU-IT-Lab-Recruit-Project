@@ -98,12 +98,16 @@ Cервис разработан с учетом масштабируемост�
 
 ## :closed_lock_with_key: Настройка входа в админку
 
-```
-$ python manage.py createsuperuser --username admin@email.com --email admin@email.com
-```
-```
-$ docker-compose -f docker-compose.yml exec web python manage.py createsuperuser --username admin@email.com --email admin@email.com
-```
+- В development конфигурации
+
+  ```
+  $ python manage.py createsuperuser --username admin@email.com --email admin@email.com
+  ```
+  
+- В Docker контейнере
+  ```
+  $ docker-compose -f docker-compose.yml exec backend python manage.py createsuperuser --username admin@email.com --email admin@email.com
+  ```
 
 ## :moneybag: Оплата
 
