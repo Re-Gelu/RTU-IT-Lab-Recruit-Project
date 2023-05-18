@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'events',
-    'login',
+    'accounts',
     
     'djoser',
     'baton.autodiscover',
@@ -214,9 +214,9 @@ DJOSER = {
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
-        'user': 'login.serializers.CustomUserSerializer',
-        'current_user': 'login.serializers.CustomUserSerializer',
-        'user_create': 'login.serializers.CustomUserCreateSerializer'
+        'user': 'accounts.serializers.CustomUserSerializer',
+        'current_user': 'accounts.serializers.CustomUserSerializer',
+        'user_create': 'accounts.serializers.CustomUserCreateSerializer'
     }
 }
 

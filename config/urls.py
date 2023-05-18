@@ -27,7 +27,7 @@ from rest_framework import permissions, routers
 
 from events.views import (EventsViewSet, EventTypesViewSet, EventVenuesViewSet,
                           PaidEventsViewSet, PrivateEventsViewSet)
-from login.views import GroupsViewSet
+from accounts.views import GroupsViewSet
 
 schema_view = get_schema_view(
     openapi.Info(
