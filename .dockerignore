@@ -18,12 +18,12 @@
 .gitignore
 .sass-cache
 .vagrant/
+.github/
 __pycache__
 dist
 docs
 env/
 venv/
-logs
 stats
 Dockerfile
 .dockerignore
