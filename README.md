@@ -21,7 +21,7 @@ Cервис разработан с учетом масштабируемост�
 
 ## :triangular_ruler: Стек проекта: 
 - Python 3.11 (Django, Django REST framework, Celery)
-- NGNIX, Gunicorn
+- NGINX, Gunicorn
 - Redis, PostgreSQL
 
 ## :wrench: Запуск проекта
