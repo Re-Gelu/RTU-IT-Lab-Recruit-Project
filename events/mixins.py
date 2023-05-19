@@ -113,7 +113,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         return Response({'invitation_code': instance.invitation_code})
     
     @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=permission_classes)
-    def registration(self, request, pk=None):
+    def registration_by_code(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей 
         при помощи кода приглашения"""
         
@@ -122,11 +122,6 @@ class InvitationModelMixin(RegistrationModelMixin):
         code_serializer.is_valid(raise_exception=True)
         
         return super().registration(request, pk)
-    
-    @registration.mapping.delete
-    def delete_registration(self, request, pk=None):
-        """ Удалить регистрацию на конкретное мероприятие пользователю или группе пользователей """
-        return super().delete_registration(request, pk)
     
 
 class PrivateInvitationModelMixin(InvitationModelMixin):
@@ -195,3 +190,7 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
         serializer = self.event_registration_serializer_class(paid_event)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    @registration.mapping.delete
+    def delete_registration(self, request, pk=None):
+        return super().delete_registration(request, pk)

@@ -199,7 +199,7 @@ class PrivateEvents(AbstractEvents):
         auto_created=True,
         alphabet="0123456789",
         unique=True,
-        verbose_name="UUID для приглашения на мероприятие",
+        verbose_name="UUID код для приглашения на мероприятие",
         length=10,
         max_length=10,
     )
@@ -244,7 +244,7 @@ class PaidEvents(AbstractEvents):
         auto_created=True,
         alphabet="0123456789",
         unique=True,
-        verbose_name="UUID для приглашения на мероприятие",
+        verbose_name="UUID код для приглашения на мероприятие",
         length=10,
         max_length=10,
     )
