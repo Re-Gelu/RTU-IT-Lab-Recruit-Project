@@ -28,6 +28,8 @@ def payment_handler():
             if registration.payment_status != payment_status:
                 result += f'\nRegistration payment with id: {registration.shortuuid} have new payment status {registration.payment_status} -> {payment_status}. '
                 registration.payment_status = payment_status
+                if payment_status == "PAID":
+                    registration.is_invitation_accepted = True
                 registration.save()
             if payment_status in (payment_statuses.REJECTED, payment_statuses.EXPIRED):
                 p2p.reject(registration.shortuuid)

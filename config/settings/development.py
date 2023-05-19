@@ -81,11 +81,11 @@ CACHE_BACKEND = 'django-cache'
 CELERYBEAT_SCHEDULE = {
     'payment_check_every_2_min': {
         'task': 'events.tasks.payment_handler',
-        'schedule': crontab(minute='*/2'), # every 2 minutes
+        'schedule': crontab(minute='*/1'), # every 2 minutes
     },
     'send_registration_reminder_every_day': {
         'task': 'events.tasks.send_registration_reminder',
-        'schedule': crontab(minute='*/2'), #crontab(hour=9, minute=0), # every day at 9am
+        'schedule': crontab(minute='*/1'), #crontab(hour=9, minute=0), # every day at 9am
     },
 }
 

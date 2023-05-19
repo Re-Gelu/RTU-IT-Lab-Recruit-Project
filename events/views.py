@@ -46,17 +46,19 @@ class EventsViewSet(viewsets.ModelViewSet, RegistrationModelMixin):
 
 
 @method_decorator(default_decorators, name="dispatch")
-class PrivateEventsViewSet(EventsViewSet, PrivateInvitationModelMixin):
+class PrivateEventsViewSet(viewsets.ModelViewSet, PrivateInvitationModelMixin):
     queryset = PrivateEvents.objects.all()
     serializer_class = PrivateEventsSerializer
     permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
+    
+    filterset_fields = EventsViewSet.filterset_fields.copy()
 
     event_registration_serializer_class = PrivateEventRegistrationsSerializer
     event_registration_model = PrivateEventRegistrations
 
 
 @method_decorator(default_decorators, name="dispatch")
-class PaidEventsViewSet(PrivateEventsViewSet, PaymentRegistrationModelMixin):
+class PaidEventsViewSet(PaymentRegistrationModelMixin, PrivateEventsViewSet):
     queryset = PaidEvents.objects.all()
     serializer_class = PaidEventsSerializer
 

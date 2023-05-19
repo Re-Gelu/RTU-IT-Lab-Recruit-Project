@@ -113,7 +113,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         return Response({'invitation_code': instance.invitation_code})
     
     @action(detail=True, methods=['post'], serializer_class=PrivateEventsCodeInvitationsSerializer, permission_classes=permission_classes)
-    def registration_by_code(self, request, pk=None):
+    def registration(self, request, pk=None):
         """ Зарегестрироваться на конкретное мероприятие пользователю или группе пользователей 
         при помощи кода приглашения"""
         
@@ -171,6 +171,7 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
             "is_invitation_accepted": False,
         })
         serializer.is_valid(raise_exception=True)
+        
         paid_event = serializer.save()
         headers = self.get_success_headers(serializer.data)
         
