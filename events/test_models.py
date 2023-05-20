@@ -38,7 +38,7 @@ class EventsModelsTest(TestCase):
                 password='testpass123'
             ),
             event=self.event,
-            is_invitation_accepted = True
+            is_registration_confirmed = True
         )
         
         
@@ -178,7 +178,7 @@ class EventRegistrationsTest(TestCase):
         )
         self.assertEqual(event_registration.__str__(), f"Запись на мероприятие №{event_registration.shortuuid}, ID мероприятия - {self.event}, ID пользователя - {self.user}")
         self.assertEqual(event_registration.inviting_user, self.user)
-        self.assertFalse(event_registration.is_invitation_accepted)
+        self.assertFalse(event_registration.is_registration_confirmed)
         
     def test_private_event_registration_creation(self):
         private_event_registration = PrivateEventRegistrations.objects.create(
@@ -187,7 +187,7 @@ class EventRegistrationsTest(TestCase):
         )
         self.assertEqual(private_event_registration.__str__(), f"Запись на приватное мероприятие №{private_event_registration.shortuuid}, ID мероприятия - {self.private_event}, ID пользователя - {self.user}")
         self.assertEqual(private_event_registration.inviting_user, self.user)
-        self.assertFalse(private_event_registration.is_invitation_accepted)
+        self.assertFalse(private_event_registration.is_registration_confirmed)
         
     def test_event_registration_unique_constraint(self):
         EventRegistrations.objects.create(

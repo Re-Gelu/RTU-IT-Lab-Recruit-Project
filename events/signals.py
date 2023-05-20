@@ -19,7 +19,7 @@ from .tasks import (notify_event_cancellation, notify_paid_event_cancellation,
 
 @receiver(signals.post_save, sender=EventRegistrations)
 def EventRegistrations_post_save(sender, instance, created, **kwargs):
-    if created and instance.is_invitation_accepted: # object is being created
+    if created and instance.is_registration_confirmed: # object is being created
         send_registration_notification.delay(
             event_name=instance.event.name,
             registration_shortuuid=instance.shortuuid,
@@ -28,7 +28,7 @@ def EventRegistrations_post_save(sender, instance, created, **kwargs):
         
 @receiver(signals.post_save, sender=PrivateEventRegistrations)
 def PrivateEventRegistrations_post_save(sender, instance, created, **kwargs):
-    if instance.is_invitation_accepted:
+    if instance.is_registration_confirmed:
         send_private_registration_notification.delay(
             event_name=instance.event.name,
             registration_shortuuid=instance.shortuuid,
@@ -37,7 +37,7 @@ def PrivateEventRegistrations_post_save(sender, instance, created, **kwargs):
         
 @receiver(signals.post_save, sender=PaidEventRegistrations)
 def PaidEventRegistrations_post_save(sender, instance, created, **kwargs):
-    if instance.is_invitation_accepted and instance.payment_status == instance.PaymentStatuses.PAID:
+    if instance.is_registration_confirmed and instance.payment_status == instance.PaymentStatuses.PAID:
         send_paid_registration_notification.delay(
             event_name=instance.event.name,
             registration_shortuuid=instance.shortuuid,
@@ -78,19 +78,19 @@ def PaidEventRegistrations_post_delete(sender, instance, **kwargs):
 def Events_post_save(sender, instance, **kwargs):
     notify_event_cancellation.delay(
         event_name=instance.name,
-        recipients=[registration.user.email for registration in EventRegistrations.objects.filter(event=instance.id, is_invitation_accepted=True)]
+        recipients=[registration.user.email for registration in EventRegistrations.objects.filter(event=instance.id, is_registration_confirmed=True)]
     )
         
 @receiver(signals.post_delete, sender=PrivateEvents)
 def PrivateEvents_post_save(sender, instance, **kwargs):
     notify_private_event_cancellation.delay(
         event_name=instance.name,
-        recipients=[registration.user.email for registration in PrivateEventRegistrations.objects.filter(event=instance.id, is_invitation_accepted=True)]
+        recipients=[registration.user.email for registration in PrivateEventRegistrations.objects.filter(event=instance.id, is_registration_confirmed=True)]
     )
         
 @receiver(signals.post_delete, sender=PaidEvents)
 def PaidEvents_post_save(sender, instance, **kwargs):
     notify_paid_event_cancellation.delay(
         event_name=instance.name,
-        recipients=[registration.user.email for registration in PaidEventRegistrations.objects.filter(event=instance.id, is_invitation_accepted=True, payment_status="PAID")]
+        recipients=[registration.user.email for registration in PaidEventRegistrations.objects.filter(event=instance.id, is_registration_confirmed=True, payment_status="PAID")]
     )

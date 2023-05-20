@@ -71,7 +71,7 @@ class EventsSerializer(serializers.ModelSerializer):
 
     def get_visitors(self, obj):
         queryset = EventRegistrations.objects.filter(
-            is_invitation_accepted=True,
+            is_registration_confirmed=True,
             event=obj.id
         ).order_by('-id')
         serializer = EventRegistrationsSerializer(queryset, many=True)
@@ -87,7 +87,7 @@ class PrivateEventsSerializer(serializers.ModelSerializer):
         
     def get_visitors(self, obj):
         queryset = PrivateEventRegistrations.objects.filter(
-            is_invitation_accepted=True,
+            is_registration_confirmed=True,
             event=obj.id
         ).order_by('-id')
         serializer = PrivateEventRegistrationsSerializer(queryset, many=True)
@@ -103,7 +103,7 @@ class PaidEventsSerializer(serializers.ModelSerializer):
         
     def get_visitors(self, obj):
         queryset = PaidEventRegistrations.objects.filter(
-            is_invitation_accepted=True,
+            is_registration_confirmed=True,
             event=obj.id,
             payment_status=PaidEventRegistrations.PaymentStatuses.PAID
         ).order_by('-id')

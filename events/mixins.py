@@ -32,7 +32,7 @@ class RegistrationModelMixin:
         serializer = self.event_registration_serializer_class(data={
             "event": pk, 
             "user": current_user.id,
-            "is_invitation_accepted": True,
+            "is_registration_confirmed": True,
         })
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -65,7 +65,7 @@ class InvitationModelMixin(RegistrationModelMixin):
         serializer = self.event_registration_serializer_class(data={
             "event": pk,
             "user": request.data.get("user"),
-            "is_invitation_accepted": False,
+            "is_registration_confirmed": False,
             "inviting_user": current_user.id
         })
         serializer.is_valid(raise_exception=True)
@@ -81,7 +81,7 @@ class InvitationModelMixin(RegistrationModelMixin):
             self.event_registration_model, 
             event=pk, 
             inviting_user=current_user.id,
-            is_invitation_accepted=False,
+            is_registration_confirmed=False,
         )
         event_registration.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -94,11 +94,11 @@ class InvitationModelMixin(RegistrationModelMixin):
             self.event_registration_model, 
             event=pk, 
             user=current_user.id,
-            is_invitation_accepted=False,
+            is_registration_confirmed=False,
         )
         serializer = self.event_registration_serializer_class(
             instance,
-            data={ "is_invitation_accepted": True },
+            data={ "is_registration_confirmed": True },
             partial=True
         )
         serializer.is_valid(raise_exception=True)
@@ -168,7 +168,7 @@ class PaymentRegistrationModelMixin(RegistrationModelMixin):
         serializer = self.event_registration_serializer_class(data={
             "event": pk, 
             "user": current_user.id,
-            "is_invitation_accepted": False,
+            "is_registration_confirmed": False,
         })
         serializer.is_valid(raise_exception=True)
         

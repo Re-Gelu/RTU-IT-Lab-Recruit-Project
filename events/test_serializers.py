@@ -39,17 +39,17 @@ class EventsSerializerTest(TestCase):
         EventRegistrations.objects.create(
             event=self.event,
             user=self.user1,
-            is_invitation_accepted=True
+            is_registration_confirmed=True
         )
         EventRegistrations.objects.create(
             event=self.event,
             user=self.user2,
-            is_invitation_accepted=True
+            is_registration_confirmed=True
         )
         EventRegistrations.objects.create(
             event=self.event,
             user=self.user3,
-            is_invitation_accepted=False
+            is_registration_confirmed=False
         )
         serializer = EventsSerializer(self.event)
         self.assertEqual(len(serializer.data['visitors']), 2)
@@ -81,17 +81,17 @@ class PrivateEventsSerializerTest(TestCase):
         PrivateEventRegistrations.objects.create(
             event=self.event,
             user=self.user1,
-            is_invitation_accepted=True
+            is_registration_confirmed=True
         )
         PrivateEventRegistrations.objects.create(
             event=self.event, 
             user=self.user2,
-            is_invitation_accepted=True
+            is_registration_confirmed=True
         )
         PrivateEventRegistrations.objects.create(
             event=self.event,
             user=self.user3, 
-            is_invitation_accepted=False
+            is_registration_confirmed=False
         )
         serializer = PrivateEventsSerializer(self.event)
         self.assertEqual(len(serializer.data['visitors']), 2)
@@ -123,19 +123,19 @@ class PaidEventsSerializerTest(TestCase):
         PaidEventRegistrations.objects.create(
             event=self.event,
             user=self.user1,
-            is_invitation_accepted=True,
+            is_registration_confirmed=True,
             payment_status='PAID'
         )
         PaidEventRegistrations.objects.create(
             event=self.event, 
             user=self.user2,
-            is_invitation_accepted=True,
+            is_registration_confirmed=True,
             payment_status='PAID'
         )
         PaidEventRegistrations.objects.create(
             event=self.event, 
             user=self.user3,
-            is_invitation_accepted=True
+            is_registration_confirmed=True
         )
         serializer = PaidEventsSerializer(self.event)
         self.assertEqual(len(serializer.data['visitors']), 2)

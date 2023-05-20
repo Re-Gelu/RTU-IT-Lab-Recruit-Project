@@ -273,7 +273,7 @@ class AbstractEventRegistrations(models.Model):
         max_length=10,
     )
 
-    is_invitation_accepted = models.BooleanField(
+    is_registration_confirmed = models.BooleanField(
         default=False, blank=True, null=True,
         verbose_name="Принял ли пользователь приглашение на мероприятие"
     )
