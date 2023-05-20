@@ -162,13 +162,13 @@ class Events(AbstractEvents):
         blank=True,
         through="EventRegistrations",
         through_fields=('event', 'user'),
-        limit_choices_to={'eventregistrations__is_invitation_accepted': True},
+        limit_choices_to={'eventregistrations__is_registration_confirmed': True},
         verbose_name="Зарегестрированные на мероприятие пользователи",
     )
 
     def visitors_len(self):
         return self.visitors.filter(
-            eventregistrations__is_invitation_accepted=True
+            eventregistrations__is_registration_confirmed=True
         ).count()
 
     class Meta:
@@ -191,7 +191,7 @@ class PrivateEvents(AbstractEvents):
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="PrivateEventRegistrations",
         through_fields=('event', 'user'),
-        limit_choices_to={'privateeventregistrations__is_invitation_accepted': True},
+        limit_choices_to={'privateeventregistrations__is_registration_confirmed': True},
         verbose_name="Зарегестрированные на приватное мероприятие пользователи",
     )
 
@@ -206,7 +206,7 @@ class PrivateEvents(AbstractEvents):
 
     def visitors_len(self):
         return self.visitors.filter(
-            privateeventregistrations__is_invitation_accepted=True
+            privateeventregistrations__is_registration_confirmed=True
         ).count()
 
     class Meta:
@@ -230,7 +230,7 @@ class PaidEvents(AbstractEvents):
     visitors = models.ManyToManyField(
         get_user_model(), blank=True, through="PaidEventRegistrations",
         through_fields=('event', 'user'),
-        limit_choices_to={'paideventregistrations__is_invitation_accepted': True,
+        limit_choices_to={'paideventregistrations__is_registration_confirmed': True,
                           'paideventregistrations__payment_status': 'PAID'},
         verbose_name="Зарегестрированные на платное мероприятие пользователи",
     )
@@ -251,7 +251,7 @@ class PaidEvents(AbstractEvents):
 
     def visitors_len(self):
         return self.visitors.filter(
-            paideventregistrations__is_invitation_accepted=True,
+            paideventregistrations__is_registration_confirmed=True,
             paideventregistrations__payment_status='PAID'
         ).count()
 
