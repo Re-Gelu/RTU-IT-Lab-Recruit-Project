@@ -1,7 +1,7 @@
 # :poop: Проект backend-сервиса, автоматизирующего процесс отслеживания актуальных мероприятий в городе
 > RTU IT Lab
 
-> Видео обзор проекта - https://youtu.be/sLoV1wxfMZw
+> [Видео обзор проекта](https://youtu.be/FiMO7Amc_jU)
 
 ## :grey_question: Описание
 
