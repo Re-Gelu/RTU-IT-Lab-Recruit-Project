@@ -58,9 +58,10 @@ class PrivateEventsViewSet(viewsets.ModelViewSet, PrivateInvitationModelMixin):
 
 
 @method_decorator(default_decorators, name="dispatch")
-class PaidEventsViewSet(PaymentRegistrationModelMixin, PrivateEventsViewSet):
+class PaidEventsViewSet(viewsets.ModelViewSet, PaymentRegistrationModelMixin, PrivateInvitationModelMixin):
     queryset = PaidEvents.objects.all()
     serializer_class = PaidEventsSerializer
+    permission_classes = [ReadOnlyIfAuthenticated | IsAdminUser, ]
 
     filterset_fields = PrivateEventsViewSet.filterset_fields.copy()
     filterset_fields.update({'price': ['exact', 'gte', 'lte']})

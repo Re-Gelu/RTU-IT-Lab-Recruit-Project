@@ -321,6 +321,8 @@ class PaidEventsViewSetTestCase(PrivateEventsViewSetTestCase):
     events_list_url = reverse('paidevents-list')
     events_detail_url = reverse('paidevents-detail', args=[1])
     not_exsisting_events_detail_url = reverse('paidevents-detail', args=[100])
+    
+
 
 
 class EventsRegistrationModelMixinTestCase(APITestCase):
@@ -377,11 +379,11 @@ class EventsRegistrationModelMixinTestCase(APITestCase):
         
         self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(admin_response.data.get("event"), self.event1.id)
-        self.assertEqual(admin_response.data.get("is_invitation_accepted"), True)
+        self.assertEqual(admin_response.data.get("is_registration_confirmed"), True)
         
         self.assertEqual(client_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(client_response.data.get("event"), self.event1.id)
-        self.assertEqual(client_response.data.get("is_invitation_accepted"), True)
+        self.assertEqual(client_response.data.get("is_registration_confirmed"), True)
         
         self.assertEqual(anonymus_client_response.status_code, status.HTTP_401_UNAUTHORIZED)
         
@@ -482,7 +484,7 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(admin_response.data.get("event"), self.event1.id)
         self.assertEqual(admin_response.data.get("user"), self.user.id)
-        self.assertEqual(admin_response.data.get("is_invitation_accepted"), False)
+        self.assertEqual(admin_response.data.get("is_registration_confirmed"), False)
         
         self.assertEqual(client_response.status_code, status.HTTP_403_FORBIDDEN)
         
@@ -519,12 +521,12 @@ class EventsInvitationModelMixinTestCase(APITestCase):
         self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(admin_response.data.get("event"), self.event1.id)
         self.assertEqual(admin_response.data.get("user"), self.user.id)
-        self.assertEqual(admin_response.data.get("is_invitation_accepted"), False)
+        self.assertEqual(admin_response.data.get("is_registration_confirmed"), False)
         
         self.assertEqual(client_response.status_code, status.HTTP_200_OK)
         self.assertEqual(client_response.data.get("event"), self.event1.id)
         self.assertEqual(client_response.data.get("user"), self.user.id)
-        self.assertEqual(client_response.data.get("is_invitation_accepted"), True)
+        self.assertEqual(client_response.data.get("is_registration_confirmed"), True)
         
         # Test confrim an invitation twice
         client_response = self.client.post(self.event_confrim_invitation_url)
