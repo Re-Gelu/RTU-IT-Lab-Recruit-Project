@@ -23,6 +23,11 @@ Cервис разработан при помощи архитектуры MVC 
 
 ![tech_stack_scheme_so](https://github.com/Re-Gelu/RTU-IT-Lab-Recruit-Project/assets/75813517/64257b69-a97c-4f4a-8f59-9865ebffb78f)
 <div align='center'>Рисунок 1 - Схема архитектуры проекта</div>
+<br><br>
+
+![my_project_visualized4](https://github.com/Re-Gelu/RTU-IT-Lab-Recruit-Project/assets/75813517/f7ba20ac-4a7c-4960-9f37-965aa7a1744e)
+<div align='center'>Рисунок 2 - Схема моделей базы данных и их отношений в проекте</div>
+<br>
 
 ## :triangular_ruler: Стек проекта: 
 - Python 3.11 (Django, Django REST framework, Celery)
