@@ -10,7 +10,7 @@ def get_QIWI_p2p():
     except:
         try:
             print(
-                "\n[!] SET QIWI_PRIVATE_KEY SETTING IN Settings or .env.prod FILE!!!\n")
+                "\n[!] SET QIWI_PRIVATE_KEY SETTING IN ADMIN SETTINGS OR SETTING FILES!!!\n")
             p2p = QiwiP2P(auth_key=settings.QIWI_PRIVATE_KEY)
         except:
             p2p = None
