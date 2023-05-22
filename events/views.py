@@ -93,15 +93,3 @@ class EventTypesViewSet(viewsets.ModelViewSet):
     filterset_fields = {
         'name': ['iexact', 'icontains'],
     }
-
-
-class EventsRegistrationsViewSet(viewsets.ModelViewSet):
-    queryset = EventRegistrations.objects.all()
-    serializer_class = EventRegistrationsSerializer
-    permission_classes = [ReadOnly | IsAuthenticated, ]
-
-
-class PrivateEventsRegistrationsViewSet(viewsets.ModelViewSet):
-    queryset = PrivateEventRegistrations.objects.all()
-    serializer_class = PrivateEventRegistrationsSerializer
-    permission_classes = [ReadOnly | IsAdminUser, ]
