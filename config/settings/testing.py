@@ -4,6 +4,8 @@ EXTRA_SETTINGS_CACHE_NAME = 'default'
 
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 
+CACHING_TIME = 1
+
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 CELERY_BROKER_URL = 'memory://'

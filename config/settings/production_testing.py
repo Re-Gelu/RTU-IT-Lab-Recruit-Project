@@ -18,6 +18,8 @@ CACHES = {
     },
 }
 
+CACHING_TIME = 1
+
 EXTRA_SETTINGS_CACHE_NAME = 'default'
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'

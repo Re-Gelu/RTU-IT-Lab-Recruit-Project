@@ -42,7 +42,7 @@ CACHES = {
     }
 }
 
-CACHING_TIME = 1 # 60
+CACHING_TIME = 60
 
 
 # Payment settings
@@ -75,7 +75,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'send_registration_reminder_every_day': {
         'task': 'events.tasks.send_registration_reminder',
-        'schedule': crontab(minute='*/2'), #crontab(hour=9, minute=0), # every day at 9am
+        'schedule': crontab(hour=9, minute=0), # every day at 9am
     },
 }
 
